@@ -6,9 +6,10 @@ Entregable final del curso UXBP 2026. Persona: Rodrigo, organizador de viaje fam
 ## Stack
 
 - HTML plano + Tailwind vía CDN (sin React, sin npm, sin build step)
-- Un solo `.html` autocontenido como entregable
+- Un solo `index.html` autocontenido: tokens, catálogos y lógica van inline
 - Tokens en CSS variables sobre `:root` (mini design system estilo shadcn)
 - Lógica de estados en JS vanilla, rule-based (sin IA)
+- Íconos: [Lucide](https://lucide.dev) vía CDN
 
 ## Alcance
 
@@ -17,9 +18,9 @@ sin routing ni navegación global. Mobile only, viewport de 390px. Light mode ú
 
 ## Flujo
 
-1. Onboarding / perfil familiar — Step 1
-2. Onboarding / perfil familiar — Step 2
-3. Listado de paquetes
+1. Onboarding / perfil familiar — Step 1 (pasajeros e intereses)
+2. Onboarding / preferencias — Step 2 (destino, fechas, actividad, presupuesto)
+3. Listado de paquetes (top 10)
 4. Detalle de paquete (tabs Estadía/Traslados, sticky price/CTA)
 5. Simulador de pago (slider de millas + cuotas 1x/3x/6x/12x + tarjeta)
 6. Resumen final
@@ -28,14 +29,30 @@ sin routing ni navegación global. Mobile only, viewport de 390px. Light mode ú
 ## Estructura
 
 ```
-tokens/       Design tokens en CSS variables
-design/       Referencias visuales del proto de Figma
+index.html    El prototipo completo. Es el entregable.
+tokens/       Los mismos tokens, separados por tipo, como referencia del
+              design system. index.html los inlinea: si tocás uno, tocá los dos.
+assets/       Memojis de Fluentmoji en 256px. index.html los inlinea en
+              base64 a 128px para no depender de rutas relativas.
+design/       Referencias visuales del proto de Figma.
 ```
+
+## Design tokens
+
+| Grupo | Cantidad | Archivo |
+|---|---|---|
+| Tipografía (Manrope, 10 estilos) | 10 | `tokens/typography.css` |
+| Color foundation (brand, neutral, status) | 31 | `tokens/colors.css` |
+| Color semántico (text, border, surface, bg) | 27 | `tokens/colors.css` |
+| Radius, spacing, border width y sombra | 18 | `tokens/layout.css` |
+
+Nota de accesibilidad: `text-tertiary` (3.18 sobre `background`) y `brand-500`
+(4.31 sobre blanco) no alcanzan AA para texto de cuerpo. Sirven para metadata,
+helper text y elementos de UI, no para texto que haya que leer sí o sí.
 
 ## Estado
 
-- [x] Tokens de tipografía (Manrope, 10 estilos)
-- [ ] Tokens de color (brand indigo 50–900 + semánticos)
-- [ ] Tokens de spacing, radius y sombras
-- [ ] Pantalla 1 — Onboarding Step 1
-- [ ] Pantallas 2 a 7
+- [x] Tokens de tipografía, color, spacing, radius y sombra
+- [x] Pantalla 1 — Onboarding Step 1 (perfil familiar)
+- [x] Pantalla 2 — Onboarding Step 2 (preferencias)
+- [ ] Pantallas 3 a 7
