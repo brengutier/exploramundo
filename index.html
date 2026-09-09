@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exploramundo — Compañía de viaje</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+<style>
+/* ============================================================
+   DESIGN TOKENS
+   Espejo de tokens/colors.css, layout.css y typography.css.
+   Se inlinean acá para que el entregable sea un solo archivo.
+   ============================================================ */
+:root {
+  /* --- foundation: brand --- */
+  --color-brand-50:#EFF2F9; --color-brand-100:#E3EBFB; --color-brand-200:#C4D6F7;
+  --color-brand-300:#A0B8F3; --color-brand-400:#6D8DEE; --color-brand-500:#4C71EB;
+  --color-brand-600:#303DE8; --color-brand-700:#232ECD; --color-brand-800:#2A31A3;
+  --color-brand-900:#171D72;
+
+  /* --- foundation: neutral --- */
+  --color-neutral-0:#FFFFFF; --color-neutral-25:#FBFCFE; --color-neutral-50:#F6F7F9;
+  --color-neutral-100:#E5E5EA; --color-neutral-300:#C7C7CC; --color-neutral-500:#8E8E93;
+  --color-neutral-600:#6E6E73; --color-neutral-900:#1D1D1F; --color-neutral-1000:#000000;
+
+  /* --- foundation: status --- */
+  --color-status-red-100:#FFE4E2;   --color-status-red-300:#FFBFBF;   --color-status-red-600:#D52C22;
+  --color-status-amber-100:#FFF3D9; --color-status-amber-300:#FFDD9F; --color-status-amber-600:#A05F00;
+  --color-status-blue-100:#D6ECFF;  --color-status-blue-300:#B2D1F2;  --color-status-blue-600:#0056CC;
+  --color-status-green-100:#DDF7E5; --color-status-green-300:#C5E0CC; --color-status-green-600:#1F7A35;
+
+  /* --- semantic: text --- */
+  --text-primary:var(--color-neutral-900);
+  --text-secondary:var(--color-neutral-600);
+  --text-tertiary:var(--color-neutral-500);
+  --text-disabled:var(--color-neutral-300);
+  --text-inverse:var(--color-neutral-0);
+  --text-brand:var(--color-brand-700);
+
+  /* --- semantic: border --- */
+  --border-light:var(--color-neutral-100);
+  --border-dark:var(--color-neutral-300);
+  --border-blackish:var(--color-neutral-900);
+
+  /* --- semantic: feedback --- */
+  --text-success:var(--color-status-green-600); --text-warning:var(--color-status-amber-600);
+  --text-error:var(--color-status-red-600);     --text-info:var(--color-status-blue-600);
+  --surface-success:var(--color-status-green-100); --surface-warning:var(--color-status-amber-100);
+  --surface-error:var(--color-status-red-100);     --surface-info:var(--color-status-blue-100);
+  --border-success:var(--color-status-green-300);  --border-warning:var(--color-status-amber-300);
+  --border-error:var(--color-status-red-300);      --border-info:var(--color-status-blue-300);
+
+  /* --- semantic: bg --- */
+  --background:var(--color-neutral-25);
+  --background-surface:var(--color-neutral-0);
+  --background-detail:var(--color-brand-50);
+  --background-brand:var(--color-brand-700);
+  --background-blackish:var(--color-neutral-900);
+  --background-disabled:var(--color-neutral-500);
+
+  /* --- layout --- */
+  --radius-sm:6px; --radius-md:8px; --radius-lg:12px; --radius-xl:16px;
+  --radius-card:24px; --radius-card-lg:32px; --radius-full:9999px;
+  --space-4:4px; --space-6:6px; --space-8:8px; --space-12:12px;
+  --space-16:16px; --space-24:24px; --space-32:32px; --space-48:48px;
+  --border-width-default:1px; --border-width-thick:2px;
+
+  /* --- sombras --- */
+  --shadow-card:0 2px 16px 0 rgba(176,176,176,.25);
+
+  /* --- typography --- */
+  --font-family-base:'Manrope', sans-serif;
+}
+
+/* ============================================================
+   TIPOGRAFÍA
+   ============================================================ */
+.text-heading-2xl{font:700 30px/36px var(--font-family-base)}
+.text-heading-xl {font:700 24px/32px var(--font-family-base)}
+.text-heading-l  {font:700 20px/28px var(--font-family-base)}
+.text-heading-m  {font:600 18px/28px var(--font-family-base)}
+.text-body-l     {font:400 18px/24px var(--font-family-base)}
+.text-body       {font:400 16px/22px var(--font-family-base)}
+.text-body-medium{font:500 16px/22px var(--font-family-base)}
+.text-body-s     {font:400 14px/20px var(--font-family-base)}
+.text-label-m    {font:600 14px/20px var(--font-family-base)}
+.text-label-s    {font:600 12px/16px var(--font-family-base)}
+
+/* ============================================================
+   BASE
+   ============================================================ */
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--color-neutral-100);
+  font-family:var(--font-family-base); color:var(--text-primary);
+  -webkit-font-smoothing:antialiased;
+}
+/* Viewport de 390px, centrado para poder demostrar en desktop. */
+.app{
+  width:390px; height:100dvh; margin:0 auto; position:relative;
+  background:var(--background); overflow:hidden;
+  display:flex; flex-direction:column;
+}
+/* Las secciones de paso estiran para que el CTA quede pegado abajo. */
+.app > section{flex:1; display:flex; flex-direction:column; min-height:0}
+.scroll-area{flex:1; min-height:0; overflow-y:auto; padding:0 var(--space-24) var(--space-32)}
+
+/* ============================================================
+   COMPONENTES
+   ============================================================ */
+
+/* --- header --- */
+.header{
+  display:flex; align-items:center; gap:var(--space-12);
+  padding:var(--space-16) var(--space-24) var(--space-8);
+}
+.icon-btn{
+  width:40px; height:40px; flex:none; display:grid; place-items:center;
+  border:none; border-radius:var(--radius-full); cursor:pointer;
+  background:var(--background-detail); color:var(--text-primary);
+  transition:background .15s ease;
+}
+.icon-btn:hover{background:var(--color-brand-100)}
+.icon-btn--ghost{background:transparent; width:32px; height:32px}
+.icon-btn--ghost:hover{background:var(--color-neutral-100)}
+.icon-btn:disabled{color:var(--text-disabled); cursor:not-allowed; background:transparent}
+.header-title{flex:1; text-align:center; margin-right:40px}
+
+/* --- stepper --- */
+.stepper{display:flex; gap:var(--space-16); padding:var(--space-16) var(--space-24)}
+.stepper span{flex:1; height:6px; border-radius:var(--radius-full); background:var(--border-light)}
+.stepper span.is-done{background:var(--background-blackish)}
+
+/* --- cards --- */
+.card{
+  background:var(--background-surface);
+  border:var(--border-width-default) solid var(--border-light);
+  border-radius:var(--radius-card);
+  padding:var(--space-24);
+  box-shadow:var(--shadow-card);
+}
+.card--collapsed{padding:var(--space-16) var(--space-24)}
+.row-add{
+  width:100%; display:flex; align-items:center; justify-content:space-between;
+  gap:var(--space-16); text-align:left; cursor:pointer;
+  background:var(--background-surface);
+  border:var(--border-width-default) solid var(--border-light);
+  border-radius:var(--radius-card);
+  /* Mismo padding vertical que .card--collapsed para que las filas
+     de agregar y los pasajeros colapsados midan igual. */
+  padding:var(--space-16) var(--space-24);
+  box-shadow:var(--shadow-card);
+  transition:border-color .15s ease;
+}
+.row-add:hover{border-color:var(--border-dark)}
+.row-add .circle{
+  width:32px; height:32px; flex:none; display:grid; place-items:center;
+  border:var(--border-width-default) solid var(--border-dark);
+  border-radius:var(--radius-full); color:var(--text-primary);
+}
+
+/* --- campos de texto (underline) --- */
+.field{display:flex; flex-direction:column; gap:var(--space-4); min-width:0}
+.field label{color:var(--text-secondary)}
+.field input{
+  border:none; border-bottom:var(--border-width-default) solid var(--border-light);
+  background:transparent; padding:var(--space-6) 0; width:100%;
+  font:400 16px/22px var(--font-family-base); color:var(--text-primary);
+  outline:none; transition:border-color .15s ease;
+}
+.field input::placeholder{color:var(--text-disabled)}
+.field input:focus{border-bottom-color:var(--border-blackish); border-bottom-width:var(--border-width-thick)}
+.field--error input{border-bottom-color:var(--text-error)}
+.field-error{color:var(--text-error); display:flex; align-items:center; gap:var(--space-4)}
+
+/* --- chips --- */
+.chip{
+  display:inline-flex; align-items:center; gap:var(--space-6);
+  padding:var(--space-4) var(--space-12); border-radius:var(--radius-full);
+  border:var(--border-width-default) solid var(--border-dark);
+  background:var(--background-surface); color:var(--text-primary);
+  font:600 14px/20px var(--font-family-base); /* label m */ cursor:pointer;
+  transition:background .15s ease, border-color .15s ease, color .15s ease;
+}
+.chip:hover:not(:disabled){border-color:var(--border-blackish)}
+.chip.is-selected{
+  background:var(--background-blackish); border-color:var(--background-blackish);
+  color:var(--text-inverse);
+}
+.chip:disabled{
+  color:var(--text-disabled); border-color:var(--border-light);
+  cursor:not-allowed; background:var(--background-surface);
+}
+.chip--static{cursor:default}
+
+/* --- botones --- */
+.btn{
+  width:100%; border:none; border-radius:var(--radius-xl); cursor:pointer;
+  padding:var(--space-16); min-height:56px;
+  font:600 16px/22px var(--font-family-base);
+  transition:background .15s ease;
+}
+.btn-primary{
+  background:linear-gradient(180deg, var(--color-brand-700) 0%, var(--color-brand-800) 100%);
+  color:var(--text-inverse);
+}
+.btn-primary:hover:not(:disabled){
+  background:linear-gradient(180deg, var(--color-brand-800) 0%, var(--color-brand-900) 100%);
+}
+.btn-primary:disabled{
+  background:var(--background-disabled); color:var(--text-inverse); cursor:not-allowed;
+}
+.btn-link{
+  background:none; border:none; padding:0; cursor:pointer;
+  font:600 14px/20px var(--font-family-base);
+  color:var(--text-primary); text-decoration:underline;
+}
+.btn-danger{
+  display:inline-flex; align-items:center; gap:var(--space-6);
+  background:none; border:none; padding:0; cursor:pointer;
+  font:600 14px/20px var(--font-family-base); color:var(--text-error);
+}
+.btn-danger:disabled{color:var(--text-disabled); cursor:not-allowed}
+
+/* --- barra fija de CTA --- */
+.cta-bar{
+  padding:var(--space-16) var(--space-24) var(--space-24);
+  background:var(--background);
+  border-top:var(--border-width-default) solid var(--border-light);
+}
+
+/* --- bottom sheet --- */
+.scrim{
+  position:absolute; inset:0; background:rgba(29,29,31,.55);
+  opacity:0; pointer-events:none; transition:opacity .2s ease; z-index:10;
+}
+.scrim.is-open{opacity:1; pointer-events:auto}
+.sheet{
+  position:absolute; left:0; right:0; bottom:0; z-index:20;
+  background:var(--background-surface);
+  border-radius:var(--radius-card-lg) var(--radius-card-lg) 0 0;
+  padding:var(--space-24);
+  /* Mide según su contenido. Lo que no cambia de alto es el bloque del
+     buscador (ver reservarAltoBuscador), así que el sheet tampoco. */
+  height:auto; max-height:92%; display:flex; flex-direction:column; gap:var(--space-24);
+  transform:translateY(100%); transition:transform .25s cubic-bezier(.32,.72,0,1);
+}
+.sheet.is-open{transform:translateY(0)}
+.sheet-body{flex:1; min-height:0; overflow-y:auto; display:flex; flex-direction:column; gap:var(--space-24)}
+/* Bloque de sección: el título se separa 16 de su contenido. */
+.sheet-seccion{display:flex; flex-direction:column; gap:var(--space-16)}
+.sheet-seccion h3{margin:0}
+/* El buscador agrupa label, input, aviso y resultados con 8. */
+.sheet-seccion--busqueda{gap:var(--space-8)}
+.chips{display:flex; flex-wrap:wrap; gap:var(--space-8)}
+/* Sin esto los bloques se comprimen por flex y .results recorta la última fila. */
+.sheet-body > *, .sheet-seccion > *{flex:none}
+/* El aviso sale del flujo cuando no hay búsqueda sin match, así el gap
+   entre el input y los resultados queda en 8 como pide el diseño. */
+#sheet-sin-match.is-hidden{display:none}
+.results{
+  border:var(--border-width-default) solid var(--border-light);
+  border-radius:var(--radius-lg); overflow:hidden;
+}
+.result{
+  width:100%; display:flex; align-items:center; justify-content:space-between;
+  gap:var(--space-12); padding:var(--space-12) var(--space-16); text-align:left;
+  background:var(--background-surface); border:none; cursor:pointer;
+  font:400 16px/22px var(--font-family-base); color:var(--text-primary);
+}
+.result + .result{border-top:var(--border-width-default) solid var(--border-light)}
+.result:hover:not(:disabled){background:var(--color-neutral-50)}
+.result:disabled{color:var(--text-disabled); cursor:not-allowed}
+.result .check{color:var(--text-primary); flex:none}
+
+/* --- avisos --- */
+.notice{
+  display:flex; gap:var(--space-12); padding:var(--space-12) var(--space-16);
+  border-radius:var(--radius-lg);
+  background:var(--surface-info); border:var(--border-width-default) solid var(--border-info);
+  color:var(--text-primary);
+}
+.notice--warning{background:var(--surface-warning); border-color:var(--border-warning)}
+
+/* --- utilidades --- */
+/* Los títulos que van arriba de un elemento con borde redondeado se
+   corren 6px para acompañar ópticamente la curva. */
+.titulo-alineado{padding-left:6px; padding-right:6px}
+.t-secondary{color:var(--text-secondary)}
+.t-tertiary{color:var(--text-tertiary)}
+.t-error{color:var(--text-error)}
+.hidden{display:none !important}
+[data-lucide]{width:20px; height:20px; stroke-width:2}
+</style>
+</head>
+
+<body>
+<div class="app" id="app">
+
+  <!-- ============ PASO 1 — COMPAÑÍA DE VIAJE ============ -->
+  <section id="paso1">
+    <header class="header">
+      <button class="icon-btn" aria-label="Volver"><i data-lucide="chevron-left"></i></button>
+      <h1 class="header-title text-heading-m">Compañía de viaje</h1>
+    </header>
+
+    <div class="stepper" role="progressbar" aria-valuenow="1" aria-valuemin="1" aria-valuemax="2"
+         aria-label="Paso 1 de 2">
+      <span class="is-done"></span><span></span>
+    </div>
+
+    <div class="scroll-area">
+      <h2 class="text-heading-l" style="margin:var(--space-16) 0 var(--space-8)">
+        Contanos sobre tu familia
+      </h2>
+      <p class="text-body t-secondary" style="margin:0 0 var(--space-32)">
+        Vamos a usar tus respuestas para mostrarte lo que mejor encaja con ustedes en este viaje.
+      </p>
+
+      <h3 class="text-heading-m titulo-alineado" style="margin:0 0 var(--space-16)">Pasajeros</h3>
+      <div id="lista-pasajeros" style="display:flex; flex-direction:column; gap:var(--space-16)"></div>
+    </div>
+  </section>
+
+  <!-- ============ PASO 2 — PLACEHOLDER ============ -->
+  <section id="paso2" class="hidden">
+    <header class="header">
+      <button class="icon-btn" id="volver-paso1" aria-label="Volver"><i data-lucide="chevron-left"></i></button>
+      <h1 class="header-title text-heading-m">Preferencias</h1>
+    </header>
+    <div class="stepper"><span class="is-done"></span><span class="is-done"></span></div>
+    <div class="scroll-area" style="display:grid; place-items:center; text-align:center">
+      <div>
+        <i data-lucide="compass" style="width:48px;height:48px;color:var(--text-tertiary)"></i>
+        <h2 class="text-heading-l" style="margin:var(--space-16) 0 var(--space-8)">Paso 2</h2>
+        <p class="text-body t-secondary" style="margin:0">Próximamente.</p>
+        <p class="text-body-s t-tertiary" id="resumen-familia" style="margin:var(--space-24) 0 0"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CTA FIJO ============ -->
+  <div class="cta-bar" id="cta-bar">
+    <button class="btn btn-primary" id="btn-continuar" disabled>Continuar</button>
+  </div>
+
+  <!-- ============ BOTTOM SHEET DE INTERESES ============ -->
+  <div class="scrim" id="scrim"></div>
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-titulo">
+    <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:var(--space-16)">
+      <div>
+        <h2 class="text-heading-l" id="sheet-titulo" style="margin:0 0 var(--space-8)">Agregar interés</h2>
+        <p class="text-body-s t-tertiary" id="sheet-contador" style="margin:0" aria-live="polite"></p>
+      </div>
+      <button class="icon-btn icon-btn--ghost" id="cerrar-sheet" aria-label="Cerrar">
+        <i data-lucide="x"></i>
+      </button>
+    </div>
+
+    <div class="sheet-body">
+      <div class="sheet-seccion">
+        <h3 class="text-body-medium titulo-alineado" id="sheet-sugeridos-titulo"></h3>
+        <div class="chips" id="sheet-sugeridos"></div>
+      </div>
+
+      <div class="sheet-seccion sheet-seccion--busqueda">
+        <h3 class="text-body-medium titulo-alineado">Buscá otros intereses</h3>
+        <div class="field">
+          <input type="text" id="sheet-buscador" placeholder="Buscar otro interés..." autocomplete="off">
+        </div>
+        <p class="text-body-s t-tertiary is-hidden" id="sheet-sin-match" style="margin:0"></p>
+        <div class="results" id="sheet-resultados"></div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="sheet-listo">Listo</button>
+  </div>
+</div>
+
+<script>
+/* ============================================
+   EXPLORAMUNDO - CATÁLOGO DE INTERESES
+   Alimenta los chips sugeridos y el buscador
+   del bottom sheet "Agregar interés".
+   ============================================ */
+
+/* Cada interés declara la franja de edad en la que tiene sentido.
+   `min` / `max` filtran TANTO los sugeridos COMO los resultados del
+   buscador: un menor de 8 años que busca "bares" no lo encuentra.
+   `sin` son sinónimos que matchean en la búsqueda sin mostrarse como chip.
+   `tags` se usan para recomendar similares cuando no hay match exacto. */
+
+const INTERESES = [
+  /* --- aire libre y naturaleza --- */
+  { id:'playa',        label:'Playa',              min:0,  tags:['aire-libre','agua','relax'],   sin:['mar','costa','arena'] },
+  { id:'montania',     label:'Montaña',            min:0,  tags:['aire-libre','naturaleza'],     sin:['sierra','cerro'] },
+  { id:'trekking',     label:'Trekking',           min:6,  tags:['aire-libre','deporte'],        sin:['senderismo','caminata','hiking'] },
+  { id:'camping',      label:'Camping',            min:6,  tags:['aire-libre','naturaleza'],     sin:['acampar','carpa'] },
+  { id:'naturaleza',   label:'Naturaleza',         min:0,  tags:['aire-libre','naturaleza'],     sin:['paisajes','flora','fauna'] },
+  { id:'cataratas',    label:'Cataratas',          min:0,  tags:['aire-libre','naturaleza'],     sin:['saltos'] },
+  { id:'nieve',        label:'Nieve',              min:0,  tags:['aire-libre'],                  sin:['invierno'] },
+  { id:'esqui',        label:'Esquí',              min:6,  tags:['aire-libre','deporte'],        sin:['snowboard','ski'] },
+  { id:'avistaje',     label:'Avistaje de fauna',  min:4,  tags:['naturaleza','aire-libre'],     sin:['ballenas','pinguinos','aves','safari'] },
+
+  /* --- agua --- */
+  { id:'pileta',       label:'Pileta',             min:0,  tags:['agua','relax'],                sin:['piscina','natacion'] },
+  { id:'snorkel',      label:'Snorkel',            min:8,  tags:['agua','aventura'],             sin:['esnorquel'] },
+  { id:'buceo',        label:'Buceo',              min:13, tags:['agua','aventura'],             sin:['diving','scuba'] },
+  { id:'surf',         label:'Surf',               min:8,  tags:['agua','deporte','aventura'],   sin:['olas','bodyboard'] },
+  { id:'kayak',        label:'Kayak',              min:8,  tags:['agua','aventura','deporte'],   sin:['canotaje','remo'] },
+  { id:'navegacion',   label:'Navegación',         min:0,  tags:['agua'],                        sin:['barco','velero','catamaran','crucero'] },
+
+  /* --- deporte --- */
+  { id:'futbol',       label:'Fútbol',             min:0,  tags:['deporte'],                     sin:['cancha','partido'] },
+  { id:'tenis',        label:'Tenis',              min:6,  tags:['deporte'],                     sin:['padel'] },
+  { id:'ciclismo',     label:'Ciclismo',           min:6,  tags:['deporte','aire-libre'],        sin:['bici','bicicleta','mtb'] },
+  { id:'escalada',     label:'Escalada',           min:8,  tags:['deporte','aventura'],          sin:['climbing','rapel'] },
+  { id:'golf',         label:'Golf',               min:13, tags:['deporte'] },
+  { id:'gimnasio',     label:'Gimnasio',           min:13, tags:['deporte'],                     sin:['gym','entrenar','pesas'] },
+
+  /* --- cultura --- */
+  { id:'cultura',      label:'Cultura',            min:6,  tags:['cultura'],                     sin:['cultural'] },
+  { id:'museos',       label:'Museos',             min:4,  tags:['cultura'],                     sin:['museo','exposicion','muestra'] },
+  { id:'historia',     label:'Historia',           min:10, tags:['cultura'],                     sin:['ruinas','patrimonio','historico'] },
+  { id:'arte',         label:'Arte',               min:10, tags:['cultura'],                     sin:['galerias','pintura','escultura'] },
+  { id:'arquitectura', label:'Arquitectura',       min:13, tags:['cultura'],                     sin:['edificios','iglesias','catedrales'] },
+  { id:'teatro',       label:'Teatro',             min:10, tags:['cultura','entretenimiento'],   sin:['obra'] },
+  { id:'musica',       label:'Música en vivo',     min:10, tags:['cultura','entretenimiento'],   sin:['recital','concierto','banda'] },
+  { id:'festivales',   label:'Festivales',         min:10, tags:['cultura','entretenimiento'],   sin:['ferias','carnaval'] },
+  { id:'pueblos',      label:'Pueblos con encanto',min:13, tags:['cultura','relax'],             sin:['pueblitos','aldeas'] },
+
+  /* --- gastronomía --- */
+  { id:'gastronomia',  label:'Gastronomía',        min:10, tags:['gastronomia','cultura'],       sin:['comida','cocina','gourmet','comer'] },
+  { id:'restaurantes', label:'Restaurantes',       min:10, tags:['gastronomia'],                 sin:['restaurant','resto'] },
+  { id:'mercados',     label:'Mercados',           min:0,  tags:['gastronomia','cultura'],       sin:['feria','comida callejera','street food'] },
+  { id:'dulces',       label:'Heladerías y dulces',min:0,  tags:['gastronomia','ninios'],        sin:['helado','postres','chocolate'] },
+  { id:'vinos',        label:'Vinos',              min:18, tags:['gastronomia'],                 sin:['bodegas','vino','enoturismo'] },
+  { id:'cerveza',      label:'Cerveza artesanal',  min:18, tags:['gastronomia','nocturna'],      sin:['birra','cervecerias'] },
+
+  /* --- relax --- */
+  { id:'descanso',     label:'Descanso',           min:0,  tags:['relax'],                       sin:['relax','relajarse','tranquilidad','no hacer nada'] },
+  { id:'spa',          label:'Spa',                min:16, tags:['relax'],                       sin:['masajes','wellness'] },
+  { id:'termas',       label:'Termas',             min:0,  tags:['relax','agua'],                sin:['aguas termales','banios termales'] },
+  { id:'resort',       label:'Resort all inclusive',min:0, tags:['relax'],                       sin:['all inclusive','todo incluido','hotel'] },
+  { id:'yoga',         label:'Yoga y meditación',  min:13, tags:['relax','deporte'],             sin:['meditacion','mindfulness','pilates'] },
+
+  /* --- entretenimiento --- */
+  { id:'parques',      label:'Parques de diversiones',min:0,tags:['entretenimiento','ninios'],   sin:['parque','disney','montania rusa','juegos mecanicos'] },
+  { id:'acuaticos',    label:'Parques acuáticos',  min:0,  tags:['entretenimiento','agua','ninios'], sin:['toboganes','aquapark'] },
+  { id:'zoologico',    label:'Zoológico y acuario',min:0,  tags:['entretenimiento','ninios','naturaleza'], sin:['zoo','acuario','animales'] },
+  { id:'shows',        label:'Shows y espectáculos',min:0, tags:['entretenimiento'],             sin:['circo','espectaculo'] },
+  { id:'bares',        label:'Bares',              min:18, tags:['nocturna'],                    sin:['bar','tragos','cocteles'] },
+  { id:'nocturna',     label:'Vida nocturna',      min:18, tags:['nocturna'],                    sin:['boliche','fiesta','discoteca','salir de noche'] },
+  { id:'casino',       label:'Casino',             min:18, tags:['nocturna','entretenimiento'],  sin:['apuestas'] },
+
+  /* --- compras --- */
+  { id:'compras',      label:'Compras',            min:10, tags:['compras'],                     sin:['shopping','tiendas'] },
+  { id:'outlets',      label:'Outlets',            min:13, tags:['compras'],                     sin:['descuentos','marcas'] },
+
+  /* --- tiempo tranquilo / chicos --- */
+  { id:'juegos',       label:'Juegos',             min:0,  max:14, tags:['ninios'],              sin:['jugar','juguetes'] },
+  { id:'dibujar',      label:'Dibujar',            min:0,  max:14, tags:['ninios','cultura'],    sin:['pintar','arte para chicos'] },
+  { id:'peliculas',    label:'Películas',          min:0,  tags:['entretenimiento'],             sin:['cine','pelis','series'] },
+  { id:'leer',         label:'Leer',               min:6,  tags:['cultura'],                     sin:['libros','lectura'] },
+  { id:'videojuegos',  label:'Videojuegos',        min:6,  tags:['ninios','entretenimiento'],    sin:['gaming','consola','play'] },
+];
+
+/* Chips sugeridos por franja etaria. Explícito y en orden de aparición:
+   reproduce exactamente lo definido en el diseño y es fácil de ajustar. */
+const SUGERIDOS = {
+  '0-5':   ['juegos','playa','pileta','dibujar','zoologico'],
+  '6-12':  ['juegos','futbol','dibujar','peliculas','leer'],
+  '13-17': ['videojuegos','playa','futbol','compras','musica'],
+  '18+':   ['gastronomia','descanso','trekking','playa','bares'],
+};
+
+/* Términos que la gente busca pero que no son categorías del catálogo.
+   Cuando no hay match exacto, se ofrecen estos ids como "similares". */
+const RELACIONADOS = {
+  'running':    ['trekking','ciclismo','gimnasio'],
+  'correr':     ['trekking','ciclismo','gimnasio'],
+  'maraton':    ['trekking','ciclismo','gimnasio'],
+  'pesca':      ['naturaleza','navegacion','kayak'],
+  'aventura':   ['trekking','escalada','kayak','surf'],
+  'fotografia': ['naturaleza','arquitectura','cultura'],
+  'moto':       ['ciclismo','naturaleza'],
+  'caballos':   ['naturaleza','aire-libre'],
+  'skate':      ['ciclismo','deporte'],
+  'basquet':    ['futbol','deporte'],
+  'volley':     ['futbol','playa'],
+  'rugby':      ['futbol','deporte'],
+  'anime':      ['peliculas','videojuegos'],
+  'tiktok':     ['videojuegos','peliculas'],
+  'musica':     ['musica','festivales','shows'],
+  'idiomas':    ['cultura','historia'],
+  'religion':   ['arquitectura','historia','cultura'],
+  'trabajo':    ['descanso','resort'],
+};
+</script>
+
+<script>
+/* ============================================================
+   ESTADO
+   ============================================================ */
+let siguienteId = 1;
+
+const state = {
+  paso: 1,
+  pasajeros: [nuevoPasajero('adulto')],
+  expandido: 1,     // id del pasajero abierto (patrón acordeón)
+  sheetPara: null,  // id del pasajero cuyo sheet está abierto
+  busqueda: '',
+};
+
+function nuevoPasajero(tipo) {
+  return { id: siguienteId++, tipo, nombre: '', edad: '', intereses: [] };
+}
+
+/* ============================================================
+   REGLAS DE NEGOCIO
+   ============================================================ */
+const MAX_INTERESES = 5;
+
+/* Menor = 0 a 17, Adulto = 18+. La edad es obligatoria. */
+function edadValida(p) {
+  if (p.edad === '') return false;
+  const n = Number(p.edad);
+  if (!Number.isInteger(n) || n < 0 || n > 120) return false;
+  return p.tipo === 'adulto' ? n >= 18 : n <= 17;
+}
+function errorEdad(p) {
+  if (p.edad === '') return null;                       // vacío no es error, es incompleto
+  const n = Number(p.edad);
+  if (!Number.isInteger(n) || n < 0 || n > 120) return 'Ingresá una edad válida.';
+  if (p.tipo === 'adulto' && n < 18) return 'Un adulto tiene 18 años o más.';
+  if (p.tipo === 'menor'  && n > 17) return 'Un menor tiene hasta 17 años.';
+  return null;
+}
+function completo(p) { return p.nombre.trim() !== '' && edadValida(p); }
+
+/* Siempre tiene que quedar al menos un adulto. */
+function adultos() { return state.pasajeros.filter(p => p.tipo === 'adulto'); }
+function puedeEliminar(p) { return p.tipo === 'menor' || adultos().length > 1; }
+
+/* El paso se completa cuando todos los pasajeros están completos.
+   Los intereses son opcionales, así que no entran en la validación. */
+function puedeContinuar() { return state.pasajeros.every(completo); }
+
+/* --- intereses --- */
+function franja(edad) {
+  const n = Number(edad);
+  if (n <= 5)  return '0-5';
+  if (n <= 12) return '6-12';
+  if (n <= 17) return '13-17';
+  return '18+';
+}
+function apto(interes, edad) {
+  const n = Number(edad);
+  return n >= interes.min && (interes.max == null || n <= interes.max);
+}
+function porId(id) { return INTERESES.find(i => i.id === id); }
+
+/* Normaliza para buscar: minúsculas y sin tildes. */
+function norm(s) {
+  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+}
+
+/* Buscador en tres niveles: label -> sinónimo -> similares. */
+function buscar(query, edad) {
+  const elegibles = INTERESES.filter(i => apto(i, edad));
+  const q = norm(query);
+
+  if (!q) return { tipo: 'default', items: elegibles.slice(0, 5) };
+
+  const directos = elegibles.filter(i => norm(i.label).includes(q));
+  const sinonimos = elegibles.filter(i =>
+    !directos.includes(i) && (i.sin || []).some(s => norm(s).includes(q))
+  );
+  const hits = [...directos, ...sinonimos];
+  if (hits.length) return { tipo: 'match', items: hits.slice(0, 5) };
+
+  /* Sin match: no se puede crear un interés nuevo, se ofrecen similares. */
+  const clave = Object.keys(RELACIONADOS).find(k => {
+    const nk = norm(k);
+    return nk.includes(q) || q.includes(nk);
+  });
+  let items = (clave ? RELACIONADOS[clave] : [])
+    .map(porId).filter(i => i && apto(i, edad));
+
+  if (!items.length) {
+    items = (SUGERIDOS[franja(edad)] || []).map(porId).filter(Boolean);
+  }
+  return { tipo: 'similares', items: items.slice(0, 5), query };
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+const $ = id => document.getElementById(id);
+
+function plural(n, sing, pl) { return n === 1 ? `1 ${sing}` : `${n} ${pl}`; }
+
+function render() {
+  renderPasajeros();
+  renderSheet();
+  $('btn-continuar').disabled = !puedeContinuar();
+  lucide.createIcons();
+}
+
+function renderPasajeros() {
+  const cont = $('lista-pasajeros');
+  cont.innerHTML = '';
+
+  /* Agrupado: adultos, botón de adulto, menores, botón de menor. */
+  state.pasajeros.filter(p => p.tipo === 'adulto').forEach(p => cont.append(cardPasajero(p)));
+  cont.append(filaAgregar('adulto'));
+  state.pasajeros.filter(p => p.tipo === 'menor').forEach(p => cont.append(cardPasajero(p)));
+  cont.append(filaAgregar('menor'));
+}
+
+function filaAgregar(tipo) {
+  const b = document.createElement('button');
+  b.className = 'row-add';
+  b.innerHTML = `<span class="text-body-medium">Agregar ${tipo}</span>
+                 <span class="circle"><i data-lucide="plus"></i></span>`;
+  b.onclick = () => agregarPasajero(tipo);
+  return b;
+}
+
+function cardPasajero(p) {
+  return state.expandido === p.id ? cardExpandida(p) : cardColapsada(p);
+}
+
+/* --- card colapsada: resumen + lápiz --- */
+function cardColapsada(p) {
+  const el = document.createElement('div');
+  el.className = 'card card--collapsed';
+  const falta = !completo(p);
+  const resumen = falta
+    ? `<span class="text-body-s t-error">Falta completar</span>`
+    : `<span class="text-body-s t-tertiary">${plural(p.intereses.length, 'interés', 'intereses') 
+        .replace('0 intereses', 'Sin intereses')}</span>`;
+  const nombre = p.nombre.trim() || (p.tipo === 'adulto' ? 'Adulto' : 'Menor');
+  const edad = edadValida(p) ? `, ${plural(Number(p.edad), 'año', 'años')}` : '';
+
+  el.innerHTML = `
+    <div style="display:flex; align-items:center; gap:var(--space-12)">
+      <div style="flex:1; display:flex; align-items:baseline; gap:var(--space-12); min-width:0">
+        <span class="text-body-medium" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis">${nombre}${edad}</span>
+        ${resumen}
+      </div>
+      <button class="icon-btn icon-btn--ghost" aria-label="Editar ${nombre}">
+        <i data-lucide="pencil"></i>
+      </button>
+    </div>`;
+  el.querySelector('button').onclick = () => { state.expandido = p.id; render(); };
+  return el;
+}
+
+/* --- card expandida: nombre, edad, intereses --- */
+function cardExpandida(p) {
+  const el = document.createElement('div');
+  el.className = 'card';
+  const err = errorEdad(p);
+  const etiqueta = p.tipo === 'adulto' ? 'Adulto' : 'Menor';
+
+  el.innerHTML = `
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-16)">
+      <div class="field">
+        <label class="text-body" for="nombre-${p.id}">${etiqueta}</label>
+        <input id="nombre-${p.id}" type="text" placeholder="Nombre" value="${p.nombre.replace(/"/g, '&quot;')}">
+      </div>
+      <div class="field ${err ? 'field--error' : ''}">
+        <label class="text-body" for="edad-${p.id}">Edad</label>
+        <input id="edad-${p.id}" type="number" inputmode="numeric" min="0" max="120"
+               placeholder="Edad" value="${p.edad}">
+      </div>
+    </div>
+    ${err ? `<p class="field-error text-body-s" style="margin:var(--space-8) 0 0">
+               <i data-lucide="alert-circle" style="width:16px;height:16px"></i>${err}
+             </p>` : ''}
+
+    <div style="margin-top:var(--space-24)">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:var(--space-16)">
+        <span class="text-body t-secondary">Intereses</span>
+        ${p.intereses.length ? `<button class="btn-link" data-accion="editar">Editar</button>` : ''}
+      </div>
+      <div id="chips-${p.id}" style="display:flex; flex-wrap:wrap; gap:var(--space-8); margin-top:var(--space-12)"></div>
+    </div>
+
+    <div style="display:flex; justify-content:flex-end; margin-top:var(--space-24)">
+      <button class="btn-danger" data-accion="eliminar" ${puedeEliminar(p) ? '' : 'disabled'}
+              title="${puedeEliminar(p) ? '' : 'Tiene que quedar al menos un adulto'}">
+        <i data-lucide="trash-2" style="width:16px;height:16px"></i>Eliminar ${etiqueta.toLowerCase()}
+      </button>
+    </div>`;
+
+  /* Chips de intereses guardados, o el botón para abrir el sheet. */
+  const chips = el.querySelector(`#chips-${p.id}`);
+  if (p.intereses.length) {
+    p.intereses.forEach(id => {
+      const s = document.createElement('span');
+      s.className = 'chip chip--static is-selected';
+      s.textContent = porId(id).label;
+      chips.append(s);
+    });
+  } else {
+    const b = document.createElement('button');
+    b.className = 'chip';
+    b.innerHTML = `<i data-lucide="plus" style="width:16px;height:16px"></i>Agregar interés`;
+    /* Sin edad no se pueden calcular sugerencias, así que el botón espera. */
+    b.disabled = !edadValida(p);
+    b.onclick = () => abrirSheet(p.id);
+    chips.append(b);
+    if (!edadValida(p)) {
+      const hint = document.createElement('p');
+      hint.className = 'text-body-s t-tertiary';
+      hint.style.cssText = 'margin:var(--space-8) 0 0; width:100%';
+      hint.textContent = 'Completá la edad para ver sugerencias.';
+      chips.append(hint);
+    }
+  }
+
+  /* Listeners */
+  const inNombre = el.querySelector(`#nombre-${p.id}`);
+  const inEdad = el.querySelector(`#edad-${p.id}`);
+  inNombre.oninput = e => { p.nombre = e.target.value; actualizarLiviano(); };
+  inEdad.oninput = e => {
+    p.edad = e.target.value;
+    /* Cambiar la edad puede invalidar intereses ya elegidos. */
+    p.intereses = p.intereses.filter(id => apto(porId(id), p.edad));
+    render();
+    const f = $(`edad-${p.id}`); if (f) { f.focus(); f.setSelectionRange(f.value.length, f.value.length); }
+  };
+  el.querySelector('[data-accion="eliminar"]').onclick = () => eliminarPasajero(p.id);
+  const editar = el.querySelector('[data-accion="editar"]');
+  if (editar) editar.onclick = () => abrirSheet(p.id);
+
+  return el;
+}
+
+/* Al tipear el nombre no hace falta re-renderizar todo (perdería el foco). */
+function actualizarLiviano() { $('btn-continuar').disabled = !puedeContinuar(); }
+
+/* ============================================================
+   ACCIONES
+   ============================================================ */
+function agregarPasajero(tipo) {
+  const p = nuevoPasajero(tipo);
+  state.pasajeros.push(p);
+  state.expandido = p.id;   /* acordeón: se abre el nuevo y colapsa el resto */
+  render();
+  const f = $(`nombre-${p.id}`); if (f) f.focus();
+}
+
+function eliminarPasajero(id) {
+  const p = state.pasajeros.find(x => x.id === id);
+  if (!puedeEliminar(p)) return;
+  state.pasajeros = state.pasajeros.filter(x => x.id !== id);
+  if (state.expandido === id) {
+    const ultimo = state.pasajeros[state.pasajeros.length - 1];
+    state.expandido = ultimo ? ultimo.id : null;
+  }
+  render();
+}
+
+/* ============================================================
+   BOTTOM SHEET
+   Guardado automático: la X, el scrim y "Listo" hacen lo mismo.
+   ============================================================ */
+function abrirSheet(id) {
+  state.sheetPara = id;
+  state.busqueda = '';
+  $('sheet-buscador').value = '';
+  render();
+  reservarAltoBuscador();
+  $('scrim').classList.add('is-open');
+  $('sheet').classList.add('is-open');
+}
+
+function cerrarSheet() {
+  $('scrim').classList.remove('is-open');
+  $('sheet').classList.remove('is-open');
+  state.sheetPara = null;
+  render();
+}
+
+function toggleInteres(p, id) {
+  const i = p.intereses.indexOf(id);
+  if (i >= 0) p.intereses.splice(i, 1);
+  else if (p.intereses.length < MAX_INTERESES) p.intereses.push(id);
+  renderSheet();
+  renderPasajeros();
+  lucide.createIcons();
+}
+
+/* Mide una sola vez cuánto ocupa el buscador en su estado más alto
+   (5 resultados + el aviso de "no encontramos") y reserva ese alto.
+   El espacio sobrante queda DEBAJO de la caja de resultados, donde no
+   se ve, y así el sheet no cambia de altura mientras filtrás. */
+function reservarAltoBuscador() {
+  const sec = document.querySelector('.sheet-seccion--busqueda');
+  const aviso = $('sheet-sin-match');
+  const lista = $('sheet-resultados');
+
+  const avisoOculto = aviso.classList.contains('is-hidden');
+  const textoAviso = aviso.textContent;
+  const listaPrevia = lista.innerHTML;
+  const listaOculta = lista.classList.contains('hidden');
+
+  aviso.classList.remove('is-hidden');
+  aviso.textContent = '\u00a0';
+  lista.classList.remove('hidden');
+  lista.innerHTML = '<button class="result"><span>&nbsp;</span></button>'.repeat(5);
+  sec.style.minHeight = '0px';
+
+  const alto = Math.ceil(sec.getBoundingClientRect().height);
+
+  if (avisoOculto) aviso.classList.add('is-hidden');
+  aviso.textContent = textoAviso;
+  lista.innerHTML = listaPrevia;
+  lista.classList.toggle('hidden', listaOculta);
+  sec.style.minHeight = alto + 'px';
+}
+
+function renderSheet() {
+  const p = state.pasajeros.find(x => x.id === state.sheetPara);
+  if (!p) return;
+
+  const n = p.intereses.length;
+  const lleno = n >= MAX_INTERESES;
+  $('sheet-contador').textContent = `${n} de ${MAX_INTERESES} (máximo) seleccionados`;
+  $('sheet-sugeridos-titulo').textContent = `Sugeridos para ${p.nombre.trim() || 'este pasajero'}`;
+
+  /* Sugeridos por edad, más los ya elegidos (para poder sacarlos desde acá). */
+  const sugeridos = (SUGERIDOS[franja(p.edad)] || []).filter(id => apto(porId(id), p.edad));
+  const ids = [...new Set([...sugeridos, ...p.intereses])];
+
+  const cont = $('sheet-sugeridos');
+  cont.innerHTML = '';
+  ids.forEach(id => {
+    const sel = p.intereses.includes(id);
+    const b = document.createElement('button');
+    b.className = 'chip' + (sel ? ' is-selected' : '');
+    b.textContent = porId(id).label;
+    b.disabled = lleno && !sel;   /* al llegar a 5 se apagan los demás */
+    b.onclick = () => toggleInteres(p, id);
+    cont.append(b);
+  });
+
+  /* Resultados del buscador */
+  const res = buscar(state.busqueda, p.edad);
+  const aviso = $('sheet-sin-match');
+  if (res.tipo === 'similares') {
+    aviso.textContent = `No encontramos «${res.query}». Quizás te interesen:`;
+    aviso.classList.remove('is-hidden');
+  } else {
+    aviso.classList.add('is-hidden');
+  }
+
+  const lista = $('sheet-resultados');
+  lista.innerHTML = '';
+  res.items.forEach(i => {
+    const sel = p.intereses.includes(i.id);
+    const b = document.createElement('button');
+    b.className = 'result';
+    b.disabled = lleno && !sel;
+    b.innerHTML = `<span>${i.label}</span>
+                   ${sel ? '<i data-lucide="check" class="check"></i>' : ''}`;
+    b.onclick = () => toggleInteres(p, i.id);
+    lista.append(b);
+  });
+  lista.classList.toggle('hidden', res.items.length === 0);
+}
+
+/* ============================================================
+   NAVEGACIÓN
+   ============================================================ */
+function irAPaso(n) {
+  state.paso = n;
+  $('paso1').classList.toggle('hidden', n !== 1);
+  $('paso2').classList.toggle('hidden', n !== 2);
+  $('cta-bar').classList.toggle('hidden', n !== 1);
+  if (n === 2) {
+    const a = adultos().length, m = state.pasajeros.length - a;
+    $('resumen-familia').textContent =
+      `${plural(a, 'adulto', 'adultos')}${m ? ` y ${plural(m, 'menor', 'menores')}` : ''} — ` +
+      `${state.pasajeros.reduce((s, p) => s + p.intereses.length, 0)} intereses cargados.`;
+  }
+  lucide.createIcons();
+}
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+$('sheet-buscador').addEventListener('input', e => { state.busqueda = e.target.value; renderSheet(); lucide.createIcons(); });
+$('cerrar-sheet').onclick = cerrarSheet;
+$('sheet-listo').onclick = cerrarSheet;
+$('scrim').onclick = cerrarSheet;
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && state.sheetPara) cerrarSheet(); });
+$('btn-continuar').onclick = () => { if (puedeContinuar()) irAPaso(2); };
+$('volver-paso1').onclick = () => irAPaso(1);
+
+render();
+</script>
+</body>
+</html>

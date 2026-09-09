@@ -26,4 +26,7 @@
   /* border width */
   --border-width-default: 1px;
   --border-width-thick:   2px;
+
+  /* shadows */
+  --shadow-card: 0 2px 16px 0 rgba(176, 176, 176, 0.25); /* B0B0B0 al 25% */
 }
