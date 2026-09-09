@@ -1,0 +1,87 @@
+/* ============================================
+   EXPLORAMUNDO - DESIGN TOKENS: COLOR
+   Foundation (48) + Semantic (27)
+   Light mode únicamente.
+   ============================================ */
+
+:root {
+  /* ---------- FOUNDATION ---------- */
+
+  /* brand / primary */
+  --color-brand-50:  #EFF2F9;
+  --color-brand-100: #E3EBFB;
+  --color-brand-200: #C4D6F7;
+  --color-brand-300: #A0B8F3;
+  --color-brand-400: #6D8DEE;
+  --color-brand-500: #4C71EB;
+  --color-brand-600: #303DE8;
+  --color-brand-700: #232ECD;
+  --color-brand-800: #2A31A3;
+  --color-brand-900: #171D72;
+
+  /* neutral */
+  --color-neutral-0:    #FFFFFF;
+  --color-neutral-25:   #FBFCFE;
+  --color-neutral-50:   #F6F7F9;
+  --color-neutral-100:  #E5E5EA;
+  --color-neutral-300:  #C7C7CC;
+  --color-neutral-500:  #8E8E93;
+  --color-neutral-600:  #6E6E73;
+  --color-neutral-900:  #1D1D1F;
+  --color-neutral-1000: #000000;
+
+  /* status */
+  --color-status-red-100:   #FFE4E2;
+  --color-status-red-300:   #FFBFBF;
+  --color-status-red-600:   #D52C22;
+  --color-status-amber-100: #FFF3D9;
+  --color-status-amber-300: #FFDD9F;
+  --color-status-amber-600: #A05F00;
+  --color-status-blue-100:  #D6ECFF;
+  --color-status-blue-300:  #B2D1F2;
+  --color-status-blue-600:  #0056CC;
+  --color-status-green-100: #DDF7E5;
+  --color-status-green-300: #C5E0CC;
+  --color-status-green-600: #1F7A35;
+
+  /* ---------- SEMANTIC ---------- */
+
+  /* text */
+  --text-primary:   var(--color-neutral-900); /* 16.39 sobre background */
+  --text-secondary: var(--color-neutral-600); /*  4.94 — AA */
+  --text-tertiary:  var(--color-neutral-500); /*  3.18 — solo metadata/helper */
+  --text-disabled:  var(--color-neutral-300);
+  --text-inverse:   var(--color-neutral-0);
+  --text-brand:     var(--color-brand-700);   /*  8.00 sobre background-detail */
+
+  /* border */
+  --border-light:     var(--color-neutral-100);
+  --border-dark:      var(--color-neutral-300);
+  --border-blackish:  var(--color-neutral-900);
+
+  /* feedback / text */
+  --text-success: var(--color-status-green-600);
+  --text-warning: var(--color-status-amber-600);
+  --text-error:   var(--color-status-red-600);
+  --text-info:    var(--color-status-blue-600);
+
+  /* feedback / surface */
+  --surface-success: var(--color-status-green-100);
+  --surface-warning: var(--color-status-amber-100);
+  --surface-error:   var(--color-status-red-100);
+  --surface-info:    var(--color-status-blue-100);
+
+  /* feedback / border */
+  --border-success: var(--color-status-green-300);
+  --border-warning: var(--color-status-amber-300);
+  --border-error:   var(--color-status-red-300);
+  --border-info:    var(--color-status-blue-300);
+
+  /* bg */
+  --background:           var(--color-neutral-25);
+  --background-surface:   var(--color-neutral-0);
+  --background-detail:    var(--color-brand-50);
+  --background-brand:     var(--color-brand-700); /* 8.96 con text-inverse */
+  --background-blackish:  var(--color-neutral-900);
+  --background-disabled:  var(--color-neutral-500);
+}
