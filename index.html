@@ -418,6 +418,17 @@ body{
 }
 .monto{display:flex; gap:var(--space-16)}
 .monto > div{flex:1; min-width:0}
+/* El monto es editable: el prefijo de moneda queda fijo al lado del input
+   y el subrayado pasa al contenedor para que se vean como un solo campo. */
+.monto-input{
+  display:flex; align-items:baseline; gap:var(--space-6);
+  border-bottom:var(--border-width-default) solid var(--border-light);
+  transition:border-color .15s ease;
+}
+.monto-input:focus-within{border-bottom-color:var(--border-blackish)}
+.monto-input input, .monto-input input:focus{
+  border:none; flex:1; min-width:0; padding:var(--space-6) 0;
+}
 
 /* --- utilidades --- */
 /* Los títulos que van arriba de un elemento con borde redondeado se
@@ -1409,6 +1420,8 @@ function renderPresupuesto() {
   const cfg = PRESUPUESTO[pref.moneda];
   const cont = $('presupuesto');
   const pct = v => (v / cfg.max) * 100;
+  const fmt = v => v.toLocaleString('es-AR');
+  const num = t => Math.min(Number(String(t).replace(/\D/g, '')) || 0, cfg.max);
 
   cont.innerHTML = `
     <span class="text-body-medium">Definí cuánto querés gastar</span>
@@ -1416,21 +1429,27 @@ function renderPresupuesto() {
 
     <div class="rango" style="margin:var(--space-24) 0 var(--space-16)">
       <div class="rango-track"></div>
-      <div class="rango-fill" style="left:${pct(pref.min)}%; right:${100 - pct(pref.max)}%"></div>
-      <input type="range" id="r-min" min="0" max="${cfg.max}" step="${cfg.step}" value="${pref.min}"
+      <div class="rango-fill"></div>
+      <input type="range" id="r-min" min="0" max="${cfg.max}" step="${cfg.step}"
              aria-label="Presupuesto mínimo">
-      <input type="range" id="r-max" min="0" max="${cfg.max}" step="${cfg.step}" value="${pref.max}"
+      <input type="range" id="r-max" min="0" max="${cfg.max}" step="${cfg.step}"
              aria-label="Presupuesto máximo">
     </div>
 
     <div class="monto">
       <div class="field">
-        <label class="text-body">Mínimo</label>
-        <span class="text-body" style="padding:var(--space-6) 0; border-bottom:var(--border-width-default) solid var(--border-light)">${plata(pref.min)}</span>
+        <label class="text-body" for="in-min">Mínimo</label>
+        <div class="monto-input">
+          <span class="text-body t-tertiary">${pref.moneda}</span>
+          <input class="text-body" id="in-min" type="text" inputmode="numeric" autocomplete="off">
+        </div>
       </div>
       <div class="field">
-        <label class="text-body">Máximo</label>
-        <span class="text-body" style="padding:var(--space-6) 0; border-bottom:var(--border-width-default) solid var(--border-light)">${plata(pref.max)}</span>
+        <label class="text-body" for="in-max">Máximo</label>
+        <div class="monto-input">
+          <span class="text-body t-tertiary">${pref.moneda}</span>
+          <input class="text-body" id="in-max" type="text" inputmode="numeric" autocomplete="off">
+        </div>
       </div>
     </div>
 
@@ -1458,10 +1477,36 @@ function renderPresupuesto() {
     ? 'No te vamos a mostrar paquetes fuera de este rango.'
     : 'Podemos mostrarte paquetes un poco por debajo o por encima.';
 
-  /* Los dos handles comparten pista: cada uno frena en el valor del otro. */
-  const rMin = cont.querySelector('#r-min'), rMax = cont.querySelector('#r-max');
-  rMin.oninput = () => { pref.min = Math.min(Number(rMin.value), pref.max); renderPresupuesto(); };
-  rMax.oninput = () => { pref.max = Math.max(Number(rMax.value), pref.min); renderPresupuesto(); };
+  const rMin  = cont.querySelector('#r-min'),  rMax  = cont.querySelector('#r-max');
+  const inMin = cont.querySelector('#in-min'), inMax = cont.querySelector('#in-max');
+  const fill  = cont.querySelector('.rango-fill');
+
+  /* Sincroniza slider y montos sin volver a construir el DOM: si
+     re-renderizáramos acá, se reemplazaría el mismo input que estás
+     arrastrando o tipeando y perderías el gesto y el cursor.
+     `salvo` es el campo que tiene el foco, para no pisarle lo que escribe. */
+  function sincronizar(salvo) {
+    rMin.value = pref.min;
+    rMax.value = pref.max;
+    fill.style.left  = pct(pref.min) + '%';
+    fill.style.right = (100 - pct(pref.max)) + '%';
+    if (salvo !== inMin) inMin.value = fmt(pref.min);
+    if (salvo !== inMax) inMax.value = fmt(pref.max);
+  }
+
+  /* Arrastre: cada handle frena en el valor del otro. */
+  rMin.oninput = () => { pref.min = Math.min(Number(rMin.value), pref.max); sincronizar(); };
+  rMax.oninput = () => { pref.max = Math.max(Number(rMax.value), pref.min); sincronizar(); };
+
+  /* Tipeo: mueve el handle en vivo, pero sin forzar min <= max mientras
+     escribís —si no, borrar el mínimo para escribir otro número lo iría
+     recortando tecla por tecla—. El orden se acomoda recién al salir. */
+  inMin.oninput = () => { pref.min = num(inMin.value); sincronizar(inMin); };
+  inMax.oninput = () => { pref.max = num(inMax.value); sincronizar(inMax); };
+  inMin.onblur  = () => { pref.min = Math.min(pref.min, pref.max); sincronizar(); };
+  inMax.onblur  = () => { pref.max = Math.max(pref.max, pref.min); sincronizar(); };
+
+  sincronizar();
 }
 
 /* --- resumen para el paso 3 --- */
