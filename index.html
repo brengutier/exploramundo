@@ -150,6 +150,9 @@ body{
 /* Cards densas (tabs del detalle, reseñas): 16 a los lados y arriba,
    24 abajo para que el último bloque no quede pegado al borde. */
 .card--detalle{padding:var(--space-16) var(--space-16) var(--space-24)}
+/* Card sin elevación: se apoya solo en el borde. Sirve para que en una
+   pantalla con varias cards, la que sí tiene sombra sea la importante. */
+.card--plana{box-shadow:none}
 .row-add{
   width:100%; display:flex; align-items:center; justify-content:space-between;
   gap:var(--space-16); text-align:left; cursor:pointer;
@@ -261,6 +264,9 @@ body{
 /* El buscador agrupa label, input, aviso y resultados con 8. */
 .sheet-seccion--busqueda{gap:var(--space-8)}
 .chips{display:flex; flex-wrap:wrap; gap:var(--space-8)}
+/* Grupo de opciones que ocupa el ancho: cada chip toma la misma tajada. */
+.chips--fill{flex-wrap:nowrap}
+.chips--fill .chip{flex:1; justify-content:center}
 /* Sin esto los bloques se comprimen por flex y .results recorta la última fila. */
 .sheet-body > *, .sheet-seccion > *{flex:none}
 /* El aviso sale del flujo cuando no hay búsqueda sin match, así el gap
@@ -397,14 +403,30 @@ body{
 .float-cta .btn{flex:1; width:auto; min-height:48px;
   font:500 16px/22px var(--font-family-base); color:var(--text-inverse)}
 
+/* --- pago: tarjeta --- */
+.tarjeta{display:flex; align-items:center; gap:var(--space-12); margin-top:var(--space-16)}
+/* Azul de Visa: es una marca de terceros, no sale de nuestra paleta. */
+.marca{
+  display:inline-flex; align-items:center; justify-content:center; flex:none;
+  width:44px; height:28px; border-radius:var(--radius-sm);
+  background:var(--background-surface);
+  border:var(--border-width-default) solid var(--border-light);
+  font:700 11px/1 var(--font-family-base); color:#1A1F71; letter-spacing:.5px;
+}
+
 /* --- avisos --- */
 .notice{
   display:flex; gap:var(--space-12); padding:var(--space-12) var(--space-16);
   border-radius:var(--radius-lg);
   background:var(--surface-info); border:var(--border-width-default) solid var(--border-info);
-  color:var(--text-primary);
+  /* La tríada de feedback va completa: surface, border Y texto del mismo
+     estado. Con text-primary el aviso perdía la mitad de la señal. */
+  color:var(--text-info);
 }
-.notice--warning{background:var(--surface-warning); border-color:var(--border-warning)}
+.notice--warning{
+  background:var(--surface-warning); border-color:var(--border-warning);
+  color:var(--text-warning);
+}
 
 /* --- paso 2: tarjetas de modo --- */
 .modos{display:grid; grid-template-columns:1fr 1fr; gap:var(--space-16)}
@@ -588,7 +610,7 @@ body{
         Vamos a usar tus respuestas para mostrarte lo que mejor encaja con ustedes en este viaje.
       </p>
 
-      <h3 class="text-heading-m titulo-alineado" style="margin:0 0 var(--space-16)">Pasajeros</h3>
+      <h3 class="text-heading-m titulo-alineado" style="margin:0 0 var(--space-12)">Pasajeros</h3>
       <div id="lista-pasajeros" style="display:flex; flex-direction:column; gap:var(--space-16)"></div>
     </div>
   </section>
@@ -615,12 +637,12 @@ body{
 
       <div class="modos" id="modos"></div>
 
-      <h3 class="text-heading-m titulo-alineado" style="margin:var(--space-32) 0 var(--space-16)">
+      <h3 class="text-heading-m titulo-alineado" style="margin:var(--space-32) 0 var(--space-12)">
         Preferencias de viaje
       </h3>
       <div id="acordeones"></div>
 
-      <h3 class="text-heading-m titulo-alineado" style="margin:var(--space-32) 0 var(--space-16)">
+      <h3 class="text-heading-m titulo-alineado" style="margin:var(--space-32) 0 var(--space-12)">
         Presupuesto
       </h3>
       <div class="card" id="presupuesto"></div>
@@ -676,7 +698,69 @@ body{
         <div class="text-heading-xl t-primary" id="det-precio"></div>
         <div class="text-body-s t-primary">Precio total</div>
       </div>
-      <button class="btn btn-primary">Elegir paquete</button>
+      <button class="btn btn-primary" id="btn-elegir">Elegir paquete</button>
+    </div>
+  </section>
+
+  <!-- ============ PASO 5 — FORMA DE PAGO ============ -->
+  <section id="paso5" class="hidden">
+    <header class="header">
+      <button class="icon-btn" id="volver-paso4" aria-label="Volver"><i data-lucide="chevron-left"></i></button>
+      <h1 class="header-title text-heading-m">Forma de pago</h1>
+    </header>
+
+    <div class="contenido">
+      <h2 class="text-heading-l" style="margin:var(--space-16) 0 var(--space-8)">
+        ¿Cómo preferís pagarlo?</h2>
+      <p class="text-body t-secondary" style="margin:0 0 var(--space-32)">
+        Probá distintas combinaciones, el total se actualiza al instante.</p>
+
+      <h3 class="text-heading-m titulo-alineado" style="margin:0 0 var(--space-12)">Tu método de pago habitual</h3>
+      <div class="card card--detalle card--plana">
+        <div class="notice">
+          <i data-lucide="info" style="flex:none"></i>
+          <span class="text-label-s">Seleccionamos la tarjeta con mejor financiación</span>
+        </div>
+        <div class="tarjeta">
+          <span class="marca">VISA</span>
+          <span class="text-body">•••• 4521</span>
+          <button class="btn-link" style="margin-left:auto">Cambiar tarjeta</button>
+        </div>
+      </div>
+      <button class="btn-link" style="margin-top:var(--space-12)">Agregar otro método de pago</button>
+
+      <h3 class="text-heading-m titulo-alineado" style="margin:var(--space-32) 0 var(--space-12)">¿En cuántas cuotas?</h3>
+      <div class="chips chips--fill" id="pago-cuotas"></div>
+      <div class="notice notice--warning hidden" id="pago-recargo"
+           style="margin-top:var(--space-16)"></div>
+
+      <h3 class="text-heading-m titulo-alineado" style="margin:var(--space-32) 0 var(--space-12)">Usá tus millas y ahorrá</h3>
+      <div class="card card--detalle card--plana" id="pago-millas"></div>
+
+      <div class="det-head titulo-alineado" style="margin:var(--space-32) 0 var(--space-12)">
+        <h3 class="text-heading-m" style="margin:0">Total a pagar</h3>
+        <div class="toggle-duo" id="pago-moneda"></div>
+      </div>
+      <div class="card card--detalle" id="pago-total"></div>
+    </div>
+
+    <div class="cta-bar">
+      <button class="btn btn-primary" id="btn-pagar">Continuar</button>
+    </div>
+  </section>
+
+  <!-- ============ PASO 6 — PLACEHOLDER ============ -->
+  <section id="paso6" class="hidden">
+    <header class="header">
+      <button class="icon-btn" id="volver-paso5" aria-label="Volver"><i data-lucide="chevron-left"></i></button>
+      <h1 class="header-title text-heading-m">Resumen</h1>
+    </header>
+    <div class="contenido" style="display:grid; place-items:center; text-align:center">
+      <div>
+        <i data-lucide="receipt" style="width:48px;height:48px;color:var(--text-tertiary)"></i>
+        <h2 class="text-heading-l" style="margin:var(--space-16) 0 var(--space-8)">Resumen final</h2>
+        <p class="text-body t-secondary" style="margin:0">Próximamente.</p>
+      </div>
     </div>
   </section>
 
@@ -951,6 +1035,7 @@ function render() {
   renderPaso2();
   renderPaso3();
   renderPaso4();
+  renderPaso5();
   renderSheet();
   actualizarCTA();
   lucide.createIcons();
@@ -2143,7 +2228,7 @@ function renderPaso4() {
   $('det-resumen').textContent =
     `${noches + 1} días / ${plural(noches, 'noche', 'noches')} · ${resumenPasajeros()}`;
   $('det-incluye').textContent = paq.incluye;
-  $('det-precio').textContent = plata(paq.precio);
+  $('det-precio').textContent = plata(precioEn(paq.usd));
 
   const tabs = $('det-tabs');
   tabs.innerHTML = '';
@@ -2368,12 +2453,142 @@ function renderResenias(r) {
 }
 
 /* ============================================================
+   FORMA DE PAGO
+   El total se arma con dos perillas: las millas descuentan plata y
+   las cuotas solo reparten, salvo 12 que tiene costo de financiación.
+   ============================================================ */
+const MILLAS_SALDO = 60000;        /* saldo de Rodrigo */
+const VALOR_MILLA_USD = 0.05;      /* 0,05 USD por milla */
+const PASO_MILLAS = 1000;
+const CUOTAS = [1, 3, 6, 12];
+const RECARGO_CUOTAS = { 12: 0.15 };
+
+const pago = { cuotas: 3, millas: 0 };
+
+/* Dos decimales: el valor de cada cuota casi nunca es redondo. */
+const plataDec = v => `${pref.moneda} ${v.toLocaleString('es-AR',
+  { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+const millasFmt = m => m.toLocaleString('es-AR');
+
+function millasEnPlata(m) {
+  const usd = m * VALOR_MILLA_USD;
+  return pref.moneda === 'ARS' ? Math.round(usd * TC_USD_ARS) : usd;
+}
+
+/* El precio se recalcula desde el valor en USD y no se lee del paquete,
+   así el toggle de moneda de esta pantalla se refleja al instante. */
+function calculoPago() {
+  const precio = precioEn(state.paquete.usd);
+  const descuento = Math.min(millasEnPlata(pago.millas), precio);
+  const subtotal = precio - descuento;
+  const recargo = RECARGO_CUOTAS[pago.cuotas] || 0;
+  const total = subtotal * (1 + recargo);
+  return { precio, descuento, subtotal, recargo, total, cuota: total / pago.cuotas };
+}
+
+function renderPaso5() {
+  if (!state.paquete) return;
+
+  /* --- cuotas --- */
+  const cont = $('pago-cuotas');
+  cont.innerHTML = '';
+  CUOTAS.forEach(n => {
+    const b = document.createElement('button');
+    b.className = 'chip' + (pago.cuotas === n ? ' is-selected' : '');
+    b.textContent = `${n}x`;
+    b.onclick = () => { pago.cuotas = n; render(); };
+    cont.append(b);
+  });
+
+  /* Avisar el recargo antes de que lo vea en el total, no después. */
+  const rec = RECARGO_CUOTAS[pago.cuotas] || 0;
+  const aviso = $('pago-recargo');
+  aviso.classList.toggle('hidden', !rec);
+  if (rec) {
+    aviso.innerHTML = `<i data-lucide="alert-circle" style="flex:none"></i>
+      <span class="text-body-s">En ${pago.cuotas} cuotas se suma un
+      ${Math.round(rec * 100)}% de recargo por financiación.</span>`;
+  }
+
+  /* --- moneda: la puede cambiar acá sin volver al paso 2 --- */
+  const mon = $('pago-moneda');
+  mon.innerHTML = '';
+  ['ARS', 'USD'].forEach(m => {
+    const b = document.createElement('button');
+    b.className = pref.moneda === m ? 'is-selected' : '';
+    b.textContent = m;
+    b.onclick = () => cambiarMoneda(m);
+    mon.append(b);
+  });
+
+  renderMillas();
+  renderTotal();
+}
+
+function renderMillas() {
+  const pct = (pago.millas / MILLAS_SALDO) * 100;
+  $('pago-millas').innerHTML = `
+    <div class="det-head">
+      <span class="text-body">${millasFmt(pago.millas)} millas</span>
+      <span class="text-label-m det-highlight" id="millas-ahorro"></span>
+    </div>
+    <div class="rango" style="margin-top:var(--space-16)">
+      <div class="rango-track"></div>
+      <div class="rango-fill" id="millas-fill" style="left:0; width:${pct}%"></div>
+      <input type="range" min="0" max="${MILLAS_SALDO}" step="${PASO_MILLAS}"
+             value="${pago.millas}" aria-label="Millas a usar">
+    </div>
+    <p class="text-body-s t-tertiary" id="millas-resto" style="margin:var(--space-8) 0 0"></p>`;
+
+  /* El input no se vuelve a crear mientras arrastrás: si re-renderizara
+     el nodo entero, el navegador perdería el gesto a mitad de camino. */
+  $('pago-millas').querySelector('input').oninput = e => {
+    pago.millas = Number(e.target.value);
+    const p = (pago.millas / MILLAS_SALDO) * 100;
+    $('millas-fill').style.width = p + '%';
+    $('pago-millas').querySelector('.det-head span').textContent =
+      `${millasFmt(pago.millas)} millas`;
+    textosMillas();
+    renderTotal();
+  };
+  textosMillas();
+}
+
+function textosMillas() {
+  const c = calculoPago();
+  $('millas-ahorro').textContent = c.descuento ? `- ${plata(Math.round(c.descuento))}` : '';
+  const quedan = MILLAS_SALDO - pago.millas;
+  $('millas-resto').textContent = pago.millas
+    ? `Te quedan ${millasFmt(quedan)} millas de tu saldo`
+    : `Tenés ${millasFmt(MILLAS_SALDO)} millas disponibles`;
+}
+
+function renderTotal() {
+  const c = calculoPago();
+  $('pago-total').innerHTML = `
+    <div style="display:flex; align-items:center; gap:var(--space-12); flex-wrap:wrap">
+      <span class="text-heading-2xl">${plata(Math.round(c.total))}</span>
+      ${pago.millas ? `<span class="tag">+${millasFmt(pago.millas)} millas</span>` : ''}
+    </div>
+    <p class="text-heading-m" style="margin:var(--space-8) 0 0">
+      ${c.cuota === c.total ? 'Un solo pago' : `${pago.cuotas} cuotas de ${plataDec(c.cuota)}`}
+    </p>
+    <p class="text-body-s t-tertiary" style="margin:var(--space-12) 0 0">
+      ${c.recargo
+        ? `Impuestos, tasas y ${Math.round(c.recargo * 100)}% de recargo incluidos.`
+        : 'Impuestos y tasas incluidos.'}
+    </p>`;
+  lucide.createIcons();
+}
+
+/* ============================================================
    NAVEGACIÓN
    ============================================================ */
 /* El estado vive en memoria, así que ir y volver entre pasos no pierde nada. */
 function irAPaso(n) {
   state.paso = n;
-  [1, 2, 3, 4].forEach(i => $('paso' + i).classList.toggle('hidden', n !== i));
+  [1, 2, 3, 4, 5, 6].forEach(i => $('paso' + i).classList.toggle('hidden', n !== i));
   $('cta-bar').classList.toggle('hidden', n >= 3);
   if (n === 4) { state.detTab = 'estadia'; state.actBanda = 'todos'; }
   window.scrollTo(0, 0);
@@ -2402,6 +2617,10 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape' && state.shee
 $('volver-paso1').onclick = () => irAPaso(1);
 $('volver-paso2').onclick = () => irAPaso(2);
 $('volver-paso3').onclick = () => irAPaso(3);
+$('volver-paso4').onclick = () => irAPaso(4);
+$('volver-paso5').onclick = () => irAPaso(5);
+$('btn-elegir').onclick = () => irAPaso(5);
+$('btn-pagar').onclick = () => irAPaso(6);
 
 render();
 </script>
