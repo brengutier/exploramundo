@@ -35,8 +35,8 @@ tokens/       Los mismos tokens, separados por tipo, como referencia del
 assets/       Memojis de Fluentmoji. Los dos del paso 2 van inlineados en
               base64; la brújula animada de la home va por ruta relativa,
               porque es un APNG y en base64 sumaría ~800 KB al HTML.
-assets/paquetes/  Fotos de los 10 destinos y de sus hoteles. Se cargan por
-              ruta relativa, no inline: ver el README de esa carpeta.
+assets/paquetes/  Fotos de los 10 destinos más una de hotel compartida. Se
+              cargan por ruta relativa, no inline: ver el README de esa carpeta.
 design/       Referencias visuales del proto de Figma.
 ```
 
@@ -97,4 +97,4 @@ helper text y elementos de UI, no para texto que haya que leer sí o sí.
 - [x] Pantalla 5 — Forma de pago (millas, cuotas y moneda)
 - [x] Pantalla 6 — Resumen / checkout
 - [x] Pantalla 7 — Compra confirmada
-- [ ] Fotos de los destinos y hoteles en `assets/paquetes/`
+- [ ] Fotos de los destinos en `assets/paquetes/` (10 + 1 de hotel)
