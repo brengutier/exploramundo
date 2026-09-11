@@ -28,5 +28,7 @@
   --border-width-thick:   2px;
 
   /* shadows */
-  --shadow-card: 0 2px 16px 0 rgba(176, 176, 176, 0.25); /* B0B0B0 al 25% */
+  --shadow-card:  0 2px 16px 0 rgba(176, 176, 176, 0.25); /* B0B0B0 al 25% */
+  --shadow-float: 0 2px 16px 0 rgba(67, 67, 67, 0.25);    /* 434343 al 25% */
+  --shadow-hero:  0 4px 20px 0 rgba(149, 149, 149, 0.25); /* 959595 al 25% */
 }

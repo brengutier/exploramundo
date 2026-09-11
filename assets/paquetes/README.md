@@ -17,7 +17,23 @@ san-andres.jpg
 buzios.jpg
 ```
 
-## Tamaño
+## Foto del hotel
+
+El detalle del paquete muestra además una foto del alojamiento, con el
+mismo nombre más el sufijo `-hotel`:
+
+```
+riviera-maya-hotel.jpg   curazao-hotel.jpg   bayahibe-hotel.jpg
+aruba-hotel.jpg          porto-de-galinhas-hotel.jpg
+punta-cana-hotel.jpg     cancun-hotel.jpg    florianopolis-hotel.jpg
+san-andres-hotel.jpg     buzios-hotel.jpg
+```
+
+Van en **800 × 500 px** (se muestran a 150px de alto, recortadas a lo ancho).
+
+Las miniaturas de las actividades no usan archivo: siempre son degradados.
+
+## Tamaño de la foto del destino
 
 **1024 × 640 px**, JPG. Es relación 16:10 exacta.
 

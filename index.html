@@ -73,6 +73,9 @@
 
   /* --- sombras --- */
   --shadow-card:0 2px 16px 0 rgba(176,176,176,.25);
+  /* Más marcada que la de las cards: el CTA flota sobre el contenido. */
+  --shadow-float:0 2px 16px 0 rgba(67,67,67,.25);
+  --shadow-hero:0 4px 20px 0 rgba(149,149,149,.25);
 
   /* --- typography --- */
   --font-family-base:'Manrope', sans-serif;
@@ -144,6 +147,7 @@ body{
   box-shadow:var(--shadow-card);
 }
 .card--collapsed{padding:var(--space-16) var(--space-24)}
+.card--detalle{padding:var(--space-16)}
 .row-add{
   width:100%; display:flex; align-items:center; justify-content:space-between;
   gap:var(--space-16); text-align:left; cursor:pointer;
@@ -310,6 +314,86 @@ body{
   border-radius:var(--radius-full); background:var(--background-surface);
   color:var(--text-secondary); font:600 12px/16px var(--font-family-base);
 }
+
+/* --- detalle: hero --- */
+.hero{position:relative}
+.hero-foto{
+  height:280px; border-radius:0 0 var(--radius-card) var(--radius-card);
+  overflow:hidden; box-shadow:var(--shadow-hero);
+}
+.hero-foto img{width:100%; height:100%; object-fit:cover; display:block}
+.hero-volver{position:absolute; top:var(--space-24); left:var(--space-24); background:var(--background-surface)}
+.hero-dots{
+  position:absolute; left:0; right:0; bottom:var(--space-24);
+  display:flex; justify-content:center; gap:var(--space-6);
+}
+.hero-dots span{width:6px; height:6px; border-radius:var(--radius-full); background:var(--border-dark)}
+.hero-dots span.is-on{background:var(--text-tertiary)}
+
+/* --- detalle: encabezado --- */
+.det-meta{display:flex; align-items:center; gap:var(--space-8); margin:0; color:var(--text-secondary)}
+.det-meta i{color:var(--text-tertiary); flex:none}
+
+/* --- detalle: bloques --- */
+.det-seccion + .det-seccion{
+  margin-top:var(--space-24); padding-top:var(--space-24);
+  border-top:var(--border-width-default) solid var(--border-light);
+}
+.det-head{display:flex; align-items:baseline; justify-content:space-between; gap:var(--space-16)}
+.det-foto{height:150px; border-radius:var(--radius-lg); overflow:hidden}
+.det-foto img{width:100%; height:100%; object-fit:cover; display:block}
+.estrellas{display:flex; gap:2px; color:var(--background-brand)}
+.estrellas [data-lucide]{width:14px; height:14px; fill:currentColor}
+.det-highlight{color:var(--text-brand)}
+
+/* --- detalle: fila de actividad / extra --- */
+.fila{
+  display:flex; align-items:center; gap:var(--space-12);
+  border:var(--border-width-default) solid var(--border-light);
+  border-radius:var(--radius-lg); padding:var(--space-12); background:var(--background-surface);
+}
+.fila-thumb{width:48px; height:48px; flex:none; border-radius:var(--radius-md); overflow:hidden}
+.fila-texto{flex:1; min-width:0}
+.fila .btn-mini{
+  flex:none; cursor:pointer; padding:var(--space-8) var(--space-12);
+  border:var(--border-width-default) solid var(--border-dark);
+  border-radius:var(--radius-full); background:var(--background-surface);
+  color:var(--text-primary); font:600 14px/20px var(--font-family-base);
+}
+.fila-ok{flex:none; color:var(--text-primary)}
+
+/* --- detalle: tramo de vuelo --- */
+.tramo{
+  background:var(--background-detail); border-radius:var(--radius-lg);
+  padding:var(--space-12) var(--space-16);
+}
+.tramo-horas{display:flex; align-items:center; justify-content:space-between; gap:var(--space-12)}
+.tramo-medio{flex:1; text-align:center; color:var(--text-tertiary)}
+
+/* Tailwind resetea list-style en su preflight: sin esto los bullets
+   de los traslados se renderizan sin punto. */
+.bullets{list-style:disc; margin:0; padding-left:var(--space-24)}
+.bullets li + li{margin-top:var(--space-4)}
+
+/* --- detalle: CTA flotante --- */
+/* Difumina el contenido que pasa por detrás del CTA para que no se corte
+   seco contra el borde de la pantalla. Va delante del contenido y detrás
+   del botón. El stop transparente usa el mismo color con alfa 0: con
+   `transparent` algunos motores interpolan hacia negro y se ve gris. */
+.float-fade{
+  position:fixed; bottom:0; left:50%; margin-left:-195px; width:390px;
+  height:180px; z-index:14; pointer-events:none;
+  background:linear-gradient(180deg, rgba(251,252,254,0) 0%, var(--background) 58%);
+}
+.float-cta{
+  position:fixed; bottom:var(--space-16); left:50%; margin-left:-171px; width:342px;
+  z-index:15; display:flex; align-items:center; gap:var(--space-16);
+  padding:var(--space-12) var(--space-16);
+  background:var(--background-detail); border-radius:var(--radius-card);
+  box-shadow:var(--shadow-float);
+}
+.float-cta .btn{flex:1; width:auto; min-height:48px;
+  font:500 16px/22px var(--font-family-base); color:var(--text-inverse)}
 
 /* --- avisos --- */
 .notice{
@@ -554,18 +638,43 @@ body{
     </div>
   </section>
 
-  <!-- ============ PASO 4 — PLACEHOLDER ============ -->
+  <!-- ============ PASO 4 — DETALLE DEL PAQUETE ============ -->
   <section id="paso4" class="hidden">
-    <header class="header">
-      <button class="icon-btn" id="volver-paso3" aria-label="Volver"><i data-lucide="chevron-left"></i></button>
-      <h1 class="header-title text-heading-m">Detalle del paquete</h1>
-    </header>
-    <div class="contenido" style="display:grid; place-items:center; text-align:center">
-      <div>
-        <i data-lucide="luggage" style="width:48px;height:48px;color:var(--text-tertiary)"></i>
-        <h2 class="text-heading-l" id="detalle-destino" style="margin:var(--space-16) 0 var(--space-8)"></h2>
-        <p class="text-body t-secondary" style="margin:0">Próximamente.</p>
+    <div class="hero">
+      <div class="hero-foto" id="det-hero"></div>
+      <button class="icon-btn hero-volver" id="volver-paso3" aria-label="Volver">
+        <i data-lucide="chevron-left"></i>
+      </button>
+      <!-- Decorativo: el carrusel no navega, marca que hay más fotos. -->
+      <div class="hero-dots" aria-hidden="true">
+        <span class="is-on"></span><span></span><span></span><span></span><span></span>
       </div>
+    </div>
+
+    <div class="contenido" style="padding-bottom:120px">
+      <h1 class="text-heading-xl" id="det-destino" style="margin:var(--space-24) 0 var(--space-16)"></h1>
+      <p class="det-meta text-body" style="margin-bottom:var(--space-8)">
+        <i data-lucide="luggage"></i><span id="det-resumen"></span>
+      </p>
+      <p class="det-meta text-body"><i data-lucide="ticket"></i><span id="det-incluye"></span></p>
+
+      <div class="card card--detalle" style="margin-top:var(--space-24)">
+        <div class="segmented" id="det-tabs"></div>
+        <p class="text-body t-tertiary" id="det-bajada"
+           style="margin:var(--space-16) 0 var(--space-24)"></p>
+        <div id="det-body"></div>
+      </div>
+
+      <div class="card card--detalle" id="det-resenias" style="margin-top:var(--space-24)"></div>
+    </div>
+
+    <div class="float-fade" aria-hidden="true"></div>
+    <div class="float-cta">
+      <div style="text-align:center">
+        <div class="text-heading-xl t-primary" id="det-precio"></div>
+        <div class="text-body-s t-primary">Precio total</div>
+      </div>
+      <button class="btn btn-primary">Elegir paquete</button>
     </div>
   </section>
 
@@ -742,6 +851,9 @@ const state = {
   expandido: 1,     // id del pasajero abierto (patrón acordeón)
   sheet: null,      // config del bottom sheet abierto (ver cfgIntereses / cfgTipos)
   busqueda: '',
+  paquete: null,    // paquete abierto en el detalle
+  detTab: 'estadia',
+  actBanda: 'todos',
 };
 
 function nuevoPasajero(tipo) {
@@ -836,6 +948,7 @@ function render() {
   renderPasajeros();
   renderPaso2();
   renderPaso3();
+  renderPaso4();
   renderSheet();
   actualizarCTA();
   lucide.createIcons();
@@ -1763,6 +1876,496 @@ function verPaquete(p) {
 }
 
 /* ============================================================
+   DETALLE DE CADA PAQUETE
+   Hotel, actividades, vuelos y reseñas son mock. Lo que sale del
+   estado real —destino, precio, noches, pasajeros y fechas— se
+   calcula en renderPaso4, no vive acá.
+   Rodrigo vuela desde Córdoba, así que todo internacional hace
+   escala en Buenos Aires: COR -> EZE -> destino, y al revés.
+   ============================================================ */
+const ORIGEN = 'COR', ESCALA = 'EZE';
+const TRAMO_CABOTAJE = { dur:'55m', aerolinea:'Aerolíneas Argentinas',
+                         idaSale:'22:20', idaLlega:'23:15',
+                         vueltaSale:'21:45', vueltaLlega:'22:40' };
+
+const DETALLES = {
+  'riviera-maya': {
+    vuelo:{ iata:'CUN', dur:'9h 10m', aerolinea:'Aeroméxico',
+            idaSale:'00:40', idaLlega:'08:40', vueltaSale:'10:15', vueltaLlega:'20:05' },
+    hotel:{ nombre:'Bahía Príncipe Grand Coba', estrellas:5,
+            highlights:['All inclusive','Frente al mar'],
+            habitacion:'Habitación familiar: 1 cama king, 2 individuales',
+            tags:['Kids club 4-12','3 piletas','8 restaurantes'] },
+    actividades:[
+      { nombre:'Cenote en familia', horas:3, precio:0, edades:[6,120] },
+      { nombre:'Tulum arqueológico', horas:4, precio:180, edades:[8,120] },
+      { nombre:'Snorkel en el arrecife', horas:2, precio:140, edades:[8,120] },
+      { nombre:'Playita con juegos', horas:2, precio:0, edades:[0,6] },
+      { nombre:'Spa maya para dos', horas:2, precio:150, edades:[18,120] } ],
+    resenias:{ promedio:4.7, total:118, similares:52, score:4.9,
+      quien:'Familia con 2 niños de 5 y 9 años',
+      texto:'El cenote fue lo que más les gustó y el hotel tenía comida para el más chico.' } },
+
+  'curazao': {
+    vuelo:{ iata:'CUR', dur:'8h 55m', aerolinea:'Copa Airlines',
+            idaSale:'00:40', idaLlega:'08:40', vueltaSale:'09:30', vueltaLlega:'19:10' },
+    hotel:{ nombre:'Curaçao Marriott Beach Resort', estrellas:5,
+            highlights:['All inclusive','Acceso directo a la playa'],
+            habitacion:'Habitación familiar: 1 cama queen, 3 individuales',
+            tags:['Kids club 4-14','2 piletas','6 restaurantes'] },
+    actividades:[
+      { nombre:'Surf familiar', horas:2, precio:0, edades:[6,120] },
+      { nombre:'Snorkel guiado', horas:3, precio:160, edades:[8,120] },
+      { nombre:'Catamarán a Kenepa', horas:5, precio:210, edades:[4,120] },
+      { nombre:'Acuario para chicos', horas:2, precio:0, edades:[0,12] },
+      { nombre:'Spa y masajes', horas:1, precio:130, edades:[18,120] } ],
+    resenias:{ promedio:4.6, total:82, similares:41, score:4.8,
+      quien:'Familia con 2 niños de 8 y 11 años',
+      texto:'Los transfers salieron a horario y el kids club nos dio dos tardes libres.' } },
+
+  'bayahibe': {
+    vuelo:{ iata:'LRM', dur:'8h 40m', aerolinea:'Copa Airlines',
+            idaSale:'00:40', idaLlega:'08:20', vueltaSale:'10:00', vueltaLlega:'19:30' },
+    hotel:{ nombre:'Dreams Dominicus La Romana', estrellas:5,
+            highlights:['All inclusive','Playa privada'],
+            habitacion:'Habitación familiar: 1 cama king, 2 individuales',
+            tags:['Kids club 3-12','4 piletas','7 restaurantes'] },
+    actividades:[
+      { nombre:'Isla Saona en catamarán', horas:6, precio:0, edades:[4,120] },
+      { nombre:'Bautismo de buceo', horas:1, precio:0, edades:[10,120] },
+      { nombre:'Kayak en el manglar', horas:2, precio:90, edades:[8,120] },
+      { nombre:'Tarde de piratas', horas:2, precio:0, edades:[4,12] },
+      { nombre:'Spa con vista al mar', horas:2, precio:140, edades:[18,120] } ],
+    resenias:{ promedio:4.5, total:64, similares:29, score:4.7,
+      quien:'Familia con 3 niños de 4, 7 y 10 años',
+      texto:'Saona vale cada minuto. El hotel resolvió la cena temprano sin drama.' } },
+
+  'aruba': {
+    vuelo:{ iata:'AUA', dur:'9h 05m', aerolinea:'Copa Airlines',
+            idaSale:'00:40', idaLlega:'08:45', vueltaSale:'09:50', vueltaLlega:'19:40' },
+    hotel:{ nombre:'Hilton Aruba Caribbean Resort', estrellas:5,
+            highlights:['Frente a Palm Beach','Spa y pileta familiar'],
+            habitacion:'Habitación familiar: 2 camas queen',
+            tags:['Kids club 5-12','2 piletas','5 restaurantes'] },
+    actividades:[
+      { nombre:'Catamarán al atardecer', horas:3, precio:0, edades:[6,120] },
+      { nombre:'Jeep por el Arikok', horas:5, precio:190, edades:[10,120] },
+      { nombre:'Clase de windsurf', horas:2, precio:120, edades:[12,120] },
+      { nombre:'Rancho de burritos', horas:2, precio:0, edades:[0,10] },
+      { nombre:'Cena en la playa', horas:3, precio:170, edades:[18,120] } ],
+    resenias:{ promedio:4.6, total:97, similares:38, score:4.8,
+      quien:'Familia con 1 niña de 7 años',
+      texto:'Playa muy calma para nadar sola y el spa nos salvó la tarde de lluvia.' } },
+
+  'porto-de-galinhas': {
+    vuelo:{ iata:'REC', dur:'4h 50m', aerolinea:'GOL',
+            idaSale:'01:10', idaLlega:'06:00', vueltaSale:'07:20', vueltaLlega:'12:10' },
+    hotel:{ nombre:'Summerville Beach Resort', estrellas:5,
+            highlights:['All inclusive','Piscinas naturales a 5 minutos'],
+            habitacion:'Habitación familiar: 1 cama queen, 2 individuales',
+            tags:['Kids club 4-12','5 piletas','4 restaurantes'] },
+    actividades:[
+      { nombre:'Jangada a las piscinas', horas:2, precio:0, edades:[0,120] },
+      { nombre:'Buggy por las playas', horas:3, precio:110, edades:[6,120] },
+      { nombre:'Proyecto Hippocampus', horas:2, precio:0, edades:[4,120] },
+      { nombre:'Capoeira para chicos', horas:1, precio:0, edades:[6,14] },
+      { nombre:'Masajes en la playa', horas:1, precio:80, edades:[18,120] } ],
+    resenias:{ promedio:4.4, total:73, similares:31, score:4.6,
+      quien:'Familia con 2 niños de 6 y 9 años',
+      texto:'Las piscinas naturales son de otro planeta. El vuelo corto ayudó muchísimo.' } },
+
+  'punta-cana': {
+    vuelo:{ iata:'PUJ', dur:'8h 30m', aerolinea:'Copa Airlines',
+            idaSale:'00:40', idaLlega:'08:10', vueltaSale:'10:30', vueltaLlega:'20:00' },
+    hotel:{ nombre:'Meliá Caribe Beach Resort', estrellas:5,
+            highlights:['All inclusive','Parque acuático propio'],
+            habitacion:'Habitación familiar: 1 cama king, 2 individuales',
+            tags:['Kids club 4-12','6 piletas','9 restaurantes'] },
+    actividades:[
+      { nombre:'Parque acuático del resort', horas:4, precio:0, edades:[0,120] },
+      { nombre:'Catamarán a Isla Catalina', horas:6, precio:230, edades:[6,120] },
+      { nombre:'Clase de merengue', horas:1, precio:0, edades:[8,120] },
+      { nombre:'Mini golf en familia', horas:2, precio:0, edades:[4,120] },
+      { nombre:'Spa y circuito de aguas', horas:2, precio:150, edades:[18,120] } ],
+    resenias:{ promedio:4.5, total:140, similares:61, score:4.7,
+      quien:'Familia con 2 niños de 7 y 12 años',
+      texto:'No salimos del resort y estuvo perfecto: tenían actividad todo el día.' } },
+
+  'cancun': {
+    vuelo:{ iata:'CUN', dur:'9h 10m', aerolinea:'Aeroméxico',
+            idaSale:'00:40', idaLlega:'08:40', vueltaSale:'10:15', vueltaLlega:'20:05' },
+    hotel:{ nombre:'Moon Palace Cancún', estrellas:5,
+            highlights:['All inclusive','Wave pool para chicos'],
+            habitacion:'Habitación familiar: 2 camas dobles',
+            tags:['Kids club 4-12','7 piletas','10 restaurantes'] },
+    actividades:[
+      { nombre:'Xcaret día completo', horas:8, precio:240, edades:[4,120] },
+      { nombre:'Chichén Itzá', horas:10, precio:260, edades:[10,120] },
+      { nombre:'Nado con delfines', horas:1, precio:180, edades:[6,120] },
+      { nombre:'Taller de piñatas', horas:1, precio:0, edades:[4,12] },
+      { nombre:'Cena maya para dos', horas:3, precio:190, edades:[18,120] } ],
+    resenias:{ promedio:4.6, total:203, similares:88, score:4.8,
+      quien:'Familia con 2 niños de 9 y 13 años',
+      texto:'Xcaret les voló la cabeza. Conviene dejarlo para el segundo día, no el primero.' } },
+
+  'florianopolis': {
+    vuelo:{ iata:'FLN', dur:'2h 45m', aerolinea:'Aerolíneas Argentinas',
+            idaSale:'07:30', idaLlega:'10:15', vueltaSale:'11:00', vueltaLlega:'13:45' },
+    hotel:{ nombre:'Costão do Santinho Resort', estrellas:5,
+            highlights:['All inclusive','Reserva ecológica propia'],
+            habitacion:'Habitación familiar: 1 cama queen, 2 individuales',
+            tags:['Kids club 3-12','4 piletas','5 restaurantes'] },
+    actividades:[
+      { nombre:'Surf en Praia Mole', horas:2, precio:0, edades:[8,120] },
+      { nombre:'Trilha da Costa da Lagoa', horas:4, precio:70, edades:[10,120] },
+      { nombre:'Stand up paddle', horas:2, precio:80, edades:[12,120] },
+      { nombre:'Circuito de aventura', horas:2, precio:0, edades:[4,12] },
+      { nombre:'Cata de vinos locales', horas:2, precio:85, edades:[18,120] } ],
+    resenias:{ promedio:4.5, total:156, similares:74, score:4.7,
+      quien:'Familia con 2 niños de 6 y 10 años',
+      texto:'Vuelo corto, idioma parecido y el resort tenía todo adentro. Volveríamos.' } },
+
+  'san-andres': {
+    vuelo:{ iata:'ADZ', dur:'7h 25m', aerolinea:'Avianca',
+            idaSale:'00:40', idaLlega:'07:05', vueltaSale:'08:40', vueltaLlega:'17:05' },
+    hotel:{ nombre:'Decameron Aquarium', estrellas:4,
+            highlights:['All inclusive','Frente al mar de siete colores'],
+            habitacion:'Habitación familiar: 2 camas dobles',
+            tags:['Kids club 4-12','2 piletas','4 restaurantes'] },
+    actividades:[
+      { nombre:'Johnny Cay en lancha', horas:4, precio:0, edades:[0,120] },
+      { nombre:'Snorkel en el acuario', horas:2, precio:0, edades:[8,120] },
+      { nombre:'Vuelta a la isla en carrito', horas:3, precio:95, edades:[4,120] },
+      { nombre:'Kayak en la bahía', horas:1, precio:60, edades:[10,120] },
+      { nombre:'Atardecer en velero', horas:2, precio:110, edades:[18,120] } ],
+    resenias:{ promedio:4.3, total:59, similares:24, score:4.6,
+      quien:'Familia con 1 niño de 8 años',
+      texto:'El agua es tan calma que nadó solo todos los días. El hotel es sencillo pero cumple.' } },
+
+  'buzios': {
+    vuelo:{ iata:'CFB', dur:'3h 20m', aerolinea:'GOL',
+            idaSale:'08:00', idaLlega:'11:20', vueltaSale:'12:30', vueltaLlega:'15:50' },
+    hotel:{ nombre:'Insólito Boutique Hotel', estrellas:4,
+            highlights:['Vista a la bahía','Pileta con solárium'],
+            habitacion:'Habitación familiar: 1 cama queen, 2 individuales',
+            tags:['Kids club 5-12','2 piletas','3 restaurantes'] },
+    actividades:[
+      { nombre:'Paseo náutico por 12 playas', horas:4, precio:0, edades:[4,120] },
+      { nombre:'Clase de stand up paddle', horas:1, precio:70, edades:[10,120] },
+      { nombre:'Buggy a Praia Brava', horas:2, precio:90, edades:[8,120] },
+      { nombre:'Tarde de arena y castillos', horas:2, precio:0, edades:[0,8] },
+      { nombre:'Spa frente a la bahía', horas:2, precio:120, edades:[18,120] } ],
+    resenias:{ promedio:4.4, total:88, similares:35, score:4.6,
+      quien:'Familia con 2 niños de 5 y 8 años',
+      texto:'Búzios es más tranquilo que Río y para esta edad fue el equilibrio justo.' } },
+};
+
+/* Extras de cross-selling: iguales para todos los paquetes. */
+const EXTRAS = [
+  { nombre:'Seguro de equipaje', bajada:'Asegurá tu equipaje' },
+  { nombre:'FastPass en Aeropuerto', bajada:'Evitá filas y accedé a salones privados' },
+];
+
+/* Franjas de las tabs de actividades. Se muestran solo las que tienen
+   al menos un pasajero: una familia sin menores no ve "4-12 años". */
+const BANDAS = [
+  { id:'0-3',     label:'0-3 años',   min:0,  max:3 },
+  { id:'4-12',    label:'4-12 años',  min:4,  max:12 },
+  { id:'13-17',   label:'13-17 años', min:13, max:17 },
+  { id:'adultos', label:'Adultos',    min:18, max:120 },
+];
+
+/* ============================================================
+   RENDER DEL DETALLE
+   ============================================================ */
+const DIAS_LARGOS = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+
+function aDate(str) { const [y,m,d] = str.split('-').map(Number); return new Date(y, m-1, d); }
+function aStr(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function sumarDias(str, n) { const d = aDate(str); d.setDate(d.getDate()+n); return aStr(d); }
+function fechaLarga(str) {
+  const d = aDate(str);
+  return `${DIAS_LARGOS[d.getDay()]} ${d.getDate()} de ${MESES[d.getMonth()].toLowerCase()}`;
+}
+function fechaCorta(str) {
+  const d = aDate(str);
+  return `${d.getDate()} de ${MESES[d.getMonth()].toLowerCase()}`;
+}
+/* Suma minutos a un "HH:MM": la hora del traslado se deriva de la del
+   vuelo en vez de quedar hardcodeada. */
+function masMinutos(hhmm, min) {
+  const [h, m] = hhmm.split(':').map(Number);
+  const t = ((h*60 + m + min) % 1440 + 1440) % 1440;
+  return `${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')}`;
+}
+
+/* Si eligió meses flexibles no hay fechas exactas: se arma una ventana
+   plausible para poder mostrar los vuelos igual. */
+function fechasViaje(paq) {
+  if (pref.desde && pref.hasta) return { desde: pref.desde, hasta: pref.hasta };
+  const d = new Date(); d.setDate(d.getDate() + 30);
+  const desde = aStr(d);
+  return { desde, hasta: sumarDias(desde, paq.noches) };
+}
+
+function nochesDe(desde, hasta) {
+  return Math.round((aDate(hasta) - aDate(desde)) / 86400000);
+}
+
+function resumenPasajeros() {
+  const a = adultos().length, m = state.pasajeros.length - a;
+  const partes = [plural(a, 'adulto', 'adultos')];
+  if (m) partes.push(plural(m, 'niño', 'niños'));
+  return partes.join(' + ');
+}
+
+/* Solo las franjas que tienen al menos un pasajero cargado: una familia
+   sin menores no ve la tab "4-12 años". */
+function bandasPresentes() {
+  return BANDAS.filter(b =>
+    state.pasajeros.some(p => edadValida(p) && Number(p.edad) >= b.min && Number(p.edad) <= b.max));
+}
+
+function renderPaso4() {
+  const paq = state.paquete;
+  if (!paq) return;
+  const det = DETALLES[paq.id];
+  const { desde, hasta } = fechasViaje(paq);
+  const noches = nochesDe(desde, hasta);
+
+  $('det-hero').style.background = `linear-gradient(155deg, ${paq.tono[0]}, ${paq.tono[1]})`;
+  $('det-hero').innerHTML = `<img src="assets/paquetes/${paq.id}.jpg" alt="" onerror="this.remove()">`;
+  $('det-destino').textContent = paq.destino;
+  $('det-resumen').textContent =
+    `${noches + 1} días / ${plural(noches, 'noche', 'noches')} · ${resumenPasajeros()}`;
+  $('det-incluye').textContent = paq.incluye;
+  $('det-precio').textContent = plata(paq.precio);
+
+  const tabs = $('det-tabs');
+  tabs.innerHTML = '';
+  [['estadia','Estadía'], ['traslados','Traslados']].forEach(([id, txt]) => {
+    const b = document.createElement('button');
+    b.className = state.detTab === id ? 'is-selected' : '';
+    b.textContent = txt;
+    b.onclick = () => { state.detTab = id; render(); };
+    tabs.append(b);
+  });
+  $('det-bajada').textContent = state.detTab === 'estadia'
+    ? 'Alojamientos y actividades de tu viaje.'
+    : 'Vuelos y traslados de tu viaje.';
+
+  const body = $('det-body');
+  body.innerHTML = '';
+  if (state.detTab === 'estadia') bodyEstadia(body, paq, det, noches);
+  else bodyTraslados(body, paq, det, desde, hasta);
+
+  renderResenias(det.resenias);
+}
+
+/* --- tab Estadía --- */
+function bodyEstadia(body, paq, det, noches) {
+  const h = det.hotel;
+  const aloj = document.createElement('div');
+  aloj.className = 'det-seccion';
+  aloj.innerHTML = `
+    <div class="det-head">
+      <h3 class="text-heading-m" style="margin:0">Alojamiento</h3>
+      <span class="text-body-s t-secondary">${noches + 1} días / ${plural(noches,'noche','noches')}</span>
+    </div>
+    <div class="det-foto" style="margin-top:var(--space-16);
+         background:linear-gradient(155deg, ${paq.tono[0]}, ${paq.tono[1]})">
+      <img src="assets/paquetes/${paq.id}-hotel.jpg" alt="" onerror="this.remove()">
+    </div>
+    <div class="estrellas" style="margin-top:var(--space-16)">
+      ${'<i data-lucide="star"></i>'.repeat(h.estrellas)}
+    </div>
+    <h4 class="text-body-l" style="margin:var(--space-12) 0 0">${h.nombre}</h4>
+    <p class="det-highlight text-label-m" style="margin:var(--space-8) 0 0">${h.highlights.join(' • ')}</p>
+    <p class="text-body-s t-secondary" style="margin:var(--space-16) 0 0">${h.habitacion}</p>
+    <div class="chips" style="margin-top:var(--space-16)">
+      ${h.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+    </div>
+    <button class="btn-link" style="margin-top:var(--space-16)">Ver fotos y ubicación</button>`;
+  body.append(aloj);
+
+  const act = document.createElement('div');
+  act.className = 'det-seccion';
+  act.innerHTML = `
+    <h3 class="text-heading-m" style="margin:0">Actividades por edad</h3>
+    <div class="segmented" id="act-tabs" style="margin-top:var(--space-16)"></div>
+    <div id="act-lista" style="display:flex; flex-direction:column;
+         gap:var(--space-12); margin-top:var(--space-16)"></div>`;
+  body.append(act);
+
+  const bandas = bandasPresentes();
+  const tabs = act.querySelector('#act-tabs');
+  [{ id:'todos', label:'Todos' }, ...bandas].forEach(b => {
+    const el = document.createElement('button');
+    el.className = state.actBanda === b.id ? 'is-selected' : '';
+    el.textContent = b.label;
+    el.onclick = () => { state.actBanda = b.id; render(); };
+    tabs.append(el);
+  });
+
+  /* "Todos" no es "sin filtro": son las actividades donde entra toda la
+     familia. Cada franja muestra lo específico de esa edad, o sea lo que
+     NO sirve para todos pero sí para ella. Así las tabs no repiten. */
+  const banda = bandas.find(b => b.id === state.actBanda);
+  const lista = det.actividades
+    .filter(a => banda
+      ? (!paraTodaLaFamilia(a) && a.edades[0] <= banda.max && a.edades[1] >= banda.min)
+      : paraTodaLaFamilia(a))
+    .sort((x, y) => (y.precio === 0) - (x.precio === 0));   /* incluidas primero */
+
+  const cont = act.querySelector('#act-lista');
+  if (!lista.length) {
+    cont.innerHTML = `<p class="text-body-s t-tertiary" style="margin:0">
+      No hay actividades para esta edad en este paquete.</p>`;
+    return;
+  }
+  lista.forEach((a, i) => cont.append(filaActividad(a, paq, i)));
+}
+
+function paraTodaLaFamilia(a) {
+  const edades = state.pasajeros.filter(edadValida).map(p => Number(p.edad));
+  if (!edades.length) return true;
+  return edades.every(e => e >= a.edades[0] && e <= a.edades[1]);
+}
+
+function filaActividad(a, paq, i) {
+  const el = document.createElement('div');
+  el.className = 'fila';
+  const incluida = a.precio === 0;
+  /* Las de adultos se cobran por cabeza; las familiares, por grupo. */
+  const unidad = a.edades[0] >= 18 ? 'por persona' : 'por familia';
+  el.innerHTML = `
+    <div class="fila-thumb" style="background:linear-gradient(${140 + i*25}deg, ${paq.tono[0]}, ${paq.tono[1]})"></div>
+    <div class="fila-texto">
+      <div class="text-label-m">${a.nombre}</div>
+      <div class="text-body-s t-tertiary">${a.horas} h</div>
+      <div class="text-body-s">${incluida
+        ? 'Incluido en el paquete'
+        : `${plata(precioEn(a.precio))} ${unidad}`}</div>
+    </div>
+    ${incluida
+      ? '<i data-lucide="check-circle" class="fila-ok"></i>'
+      : '<button class="btn-mini">Agregar</button>'}`;
+  return el;
+}
+
+/* --- tab Traslados --- */
+function bodyTraslados(body, paq, det, desde, hasta) {
+  const v = det.vuelo, c = TRAMO_CABOTAJE;
+  const pax = state.pasajeros.length;
+
+  const vuelos = document.createElement('div');
+  vuelos.className = 'det-seccion';
+  vuelos.innerHTML = `
+    <h3 class="text-heading-m" style="margin:0 0 var(--space-16)">Vuelos incluidos</h3>
+    <p class="text-body t-primary" style="margin:0 0 var(--space-8)">Ida</p>
+    ${tramo(desde, c.idaSale, ORIGEN, c.idaLlega, ESCALA, c.dur, c.aerolinea)}
+    ${tramo(sumarDias(desde,1), v.idaSale, ESCALA, v.idaLlega, v.iata, v.dur, v.aerolinea)}
+    <p class="text-body t-primary" style="margin:var(--space-16) 0 var(--space-8)">Vuelta</p>
+    ${tramo(hasta, v.vueltaSale, v.iata, v.vueltaLlega, ESCALA, v.dur, v.aerolinea)}
+    ${tramo(hasta, c.vueltaSale, ESCALA, c.vueltaLlega, ORIGEN, c.dur, c.aerolinea)}
+    <div class="chips" style="margin-top:var(--space-16)">
+      <span class="tag">Asientos juntos</span>
+      <span class="tag">Incluye equipaje</span>
+    </div>
+    <button class="btn-link" style="margin-top:var(--space-16)">Ver otras combinaciones de vuelos</button>`;
+  body.append(vuelos);
+
+  const tras = document.createElement('div');
+  tras.className = 'det-seccion';
+  tras.innerHTML = `
+    <h3 class="text-heading-m" style="margin:0 0 var(--space-16)">Traslados</h3>
+    ${bloqueTraslado('Salida desde el aeropuerto',
+      `${fechaCorta(sumarDias(desde,1))} - ${masMinutos(v.idaLlega, 20)} hs.`,
+      'Calculado para que desembarques con tranquilidad', pax)}
+    ${bloqueTraslado('Salida desde el hotel',
+      `${fechaCorta(hasta)} - ${masMinutos(v.vueltaSale, -180)} hs.`,
+      'Calculado para llegar con tiempo a tu check-in', pax)}
+    <div class="chips" style="margin-top:var(--space-16)">
+      <span class="tag">Atención personalizada</span>
+      <span class="tag">Horarios flexibles</span>
+    </div>
+    <button class="btn-link" style="margin-top:var(--space-16)">Ver detalles de contacto</button>`;
+  body.append(tras);
+
+  const ex = document.createElement('div');
+  ex.className = 'det-seccion';
+  ex.innerHTML = `
+    <h3 class="text-heading-m" style="margin:0 0 var(--space-16)">Extras</h3>
+    <div style="display:flex; flex-direction:column; gap:var(--space-12)">
+      ${EXTRAS.map(e => `
+        <div class="fila">
+          <div class="fila-texto">
+            <div class="text-label-m">${e.nombre}</div>
+            <div class="text-body-s t-secondary">${e.bajada}</div>
+          </div>
+          <button class="btn-mini">Agregar</button>
+        </div>`).join('')}
+    </div>`;
+  body.append(ex);
+}
+
+function tramo(fecha, sale, iataSale, llega, iataLlega, dur, aerolinea) {
+  return `
+    <div class="tramo" style="margin-bottom:var(--space-8)">
+      <div class="text-body-s t-secondary">${fechaLarga(fecha)}</div>
+      <div class="tramo-horas" style="margin-top:var(--space-8)">
+        <div>
+          <div class="text-body-medium">${sale}</div>
+          <div class="text-body-s t-secondary">${iataSale}</div>
+        </div>
+        <div class="tramo-medio">
+          <div class="text-label-s">${dur} • Directo</div>
+          <div class="text-body-s t-tertiary">${aerolinea}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="text-body-medium">${llega}</div>
+          <div class="text-body-s t-secondary">${iataLlega}</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function bloqueTraslado(titulo, cuando, bajada, pax) {
+  return `
+    <div style="margin-bottom:var(--space-24)">
+      <p class="text-body t-primary" style="margin:0">${titulo}<br>${cuando}</p>
+      <p class="text-label-s t-secondary" style="margin:var(--space-8) 0 var(--space-8)">${bajada}</p>
+      <ul class="bullets text-body-s t-secondary">
+        <li>Duración: 1h 5m</li>
+        <li>Capacidad: ${plural(pax, 'pasajero', 'pasajeros')}</li>
+        <li>${plural(pax, 'valija', 'valijas')} por vehículo</li>
+      </ul>
+    </div>`;
+}
+
+function renderResenias(r) {
+  $('det-resenias').innerHTML = `
+    <div class="det-head">
+      <h3 class="text-heading-m" style="margin:0">Reseñas verificadas</h3>
+      <span class="text-body t-secondary" style="display:inline-flex; align-items:center; gap:var(--space-4); white-space:nowrap; flex:none">${String(r.promedio).replace('.', ',')}
+        <i data-lucide="star" style="width:14px;height:14px;fill:currentColor;color:var(--background-brand)"></i>
+        (${r.total})</span>
+    </div>
+    <div style="display:flex; gap:var(--space-12); margin-top:var(--space-16);
+         background:var(--background-detail); border-radius:var(--radius-lg); padding:var(--space-12)">
+      <span class="text-body-medium" style="flex:none">${String(r.score).replace('.', ',')}</span>
+      <div>
+        <div class="text-body-s text-body-medium">${r.quien}</div>
+        <p class="text-body-s t-secondary" style="margin:var(--space-4) 0 0">“${r.texto}”</p>
+      </div>
+    </div>
+    <button class="btn-link" style="margin-top:var(--space-16)">
+      Ver ${r.similares} reseñas de familias similares</button>`;
+}
+
+/* ============================================================
    NAVEGACIÓN
    ============================================================ */
 /* El estado vive en memoria, así que ir y volver entre pasos no pierde nada. */
@@ -1770,7 +2373,7 @@ function irAPaso(n) {
   state.paso = n;
   [1, 2, 3, 4].forEach(i => $('paso' + i).classList.toggle('hidden', n !== i));
   $('cta-bar').classList.toggle('hidden', n >= 3);
-  if (n === 4) $('detalle-destino').textContent = state.paquete ? state.paquete.destino : '';
+  if (n === 4) { state.detTab = 'estadia'; state.actBanda = 'todos'; }
   window.scrollTo(0, 0);
   render();
 }
