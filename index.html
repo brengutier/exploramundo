@@ -436,6 +436,81 @@ body{
 .paso-sigue{display:flex; gap:var(--space-12); text-align:left}
 .paso-sigue [data-lucide]{flex:none; color:var(--text-tertiary); margin-top:2px}
 
+/* --- home --- */
+.home-header{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:var(--space-24) var(--space-24) var(--space-16);
+}
+.avatar{
+  width:36px; height:36px; display:grid; place-items:center;
+  border-radius:var(--radius-full); background:var(--color-neutral-100);
+  color:var(--text-secondary);
+}
+/* Buscador falso: parece un input pero no lo es. */
+.buscador{
+  display:flex; align-items:center; gap:var(--space-12);
+  padding:var(--space-12) var(--space-16); width:100%; cursor:pointer;
+  background:var(--background-surface);
+  border:var(--border-width-default) solid var(--border-light);
+  border-radius:var(--radius-full); box-shadow:var(--shadow-card);
+  color:var(--text-tertiary); font:400 16px/22px var(--font-family-base);
+  text-align:left;
+}
+.buscador i{color:var(--text-tertiary); flex:none}
+
+.atajos{display:flex; gap:var(--space-8)}
+.atajo{
+  flex:1; display:flex; flex-direction:column; align-items:center; gap:var(--space-8);
+  padding:var(--space-12) var(--space-4); cursor:pointer;
+  background:none; border:none; color:var(--text-secondary);
+  font:400 12px/16px var(--font-family-base);
+}
+.atajo span:first-child{
+  width:44px; height:44px; display:grid; place-items:center;
+  border-radius:var(--radius-full);
+  background:var(--background-surface);
+  border:var(--border-width-default) solid var(--border-light);
+  color:var(--text-primary);
+}
+
+/* La entrada a la feature: lo único con color de marca en toda la home. */
+.banner{
+  display:flex; align-items:center; gap:var(--space-16); width:100%;
+  padding:var(--space-24); cursor:pointer; text-align:left; border:none;
+  border-radius:var(--radius-card); box-shadow:var(--shadow-card);
+  background:linear-gradient(135deg, var(--color-brand-700) 0%, var(--color-brand-900) 100%);
+  color:var(--text-inverse);
+  transition:transform .12s ease;
+}
+.banner:active{transform:scale(.99)}
+.banner i{flex:none}
+/* APNG animado, servido por ruta relativa: en base64 sumaría ~800 KB al
+   HTML. Si no está el archivo, el onerror lo saca y el banner queda igual. */
+.banner-emoji{width:76px; height:76px; flex:none; display:block}
+
+.destinos{display:flex; gap:var(--space-12); overflow-x:auto; padding-bottom:var(--space-4)}
+.destino{
+  flex:none; width:140px; cursor:pointer; text-align:left;
+  background:none; border:none; padding:0;
+}
+.destino .foto{
+  height:100px; border-radius:var(--radius-lg); margin-bottom:var(--space-8);
+}
+
+/* Barra de navegación: inerte, está para ubicar la feature dentro de la app. */
+.tabbar{
+  position:fixed; bottom:0; left:50%; margin-left:-195px; width:390px; z-index:15;
+  display:flex; background:var(--background-surface);
+  border-top:var(--border-width-default) solid var(--border-light);
+  padding:var(--space-8) 0 var(--space-16);
+}
+.tabbar button{
+  flex:1; display:flex; flex-direction:column; align-items:center; gap:var(--space-4);
+  background:none; border:none; cursor:pointer; color:var(--text-tertiary);
+  font:400 11px/14px var(--font-family-base);
+}
+.tabbar button.is-selected{color:var(--text-brand)}
+
 /* --- avisos --- */
 .notice{
   display:flex; gap:var(--space-12); padding:var(--space-12) var(--space-16);
@@ -613,10 +688,60 @@ body{
 <body>
 <div class="app" id="app">
 
+  <!-- ============ PASO 0 — HOME DE EXPLORAMUNDO ============ -->
+  <!-- Es la app que "ya existe": todo acá es inerte salvo el banner,
+       que es la puerta de entrada a la feature. -->
+  <section id="paso0">
+    <header class="home-header">
+      <span class="text-heading-l">Exploramundo</span>
+    </header>
+
+    <div class="contenido" style="padding-bottom:110px">
+      <button class="buscador">
+        <i data-lucide="search"></i><span>¿A dónde querés ir?</span>
+      </button>
+
+      <div class="atajos" style="margin-top:var(--space-24)">
+        <button class="atajo"><span><i data-lucide="plane"></i></span><span>Vuelos</span></button>
+        <button class="atajo"><span><i data-lucide="bed-double"></i></span><span>Hoteles</span></button>
+        <button class="atajo"><span><i data-lucide="package"></i></span><span>Paquetes</span></button>
+        <button class="atajo"><span><i data-lucide="car-front"></i></span><span>Autos</span></button>
+      </div>
+
+      <button class="banner" id="ir-feature" style="margin-top:var(--space-32)">
+        <div style="flex:1; min-width:0">
+          <p class="text-heading-l" style="margin:0">Tu top 10 para viajar en familia</p>
+          <!-- 500 a 14px no está entre los 10 estilos tipográficos: es la
+               única excepción del prototipo, deliberada y de un solo uso.
+               No se tokenizó a propósito, para no inflar el sistema. -->
+          <p style="margin:var(--space-8) 0 0; opacity:.85;
+                    font:500 14px/20px var(--font-family-base)">
+            Contanos quiénes viajan y armamos tu paquete ideal.</p>
+        </div>
+        <img class="banner-emoji" src="assets/emoji-brujula.png" alt="" onerror="this.remove()">
+      </button>
+
+      <h2 class="text-heading-m titulo-alineado" style="margin:var(--space-32) 0 var(--space-12)">
+        Seguí explorando</h2>
+      <div class="destinos" id="home-destinos"></div>
+
+      <h2 class="text-heading-m titulo-alineado" style="margin:var(--space-32) 0 var(--space-12)">
+        Escapadas de relax</h2>
+      <div id="home-ofertas" style="display:flex; flex-direction:column; gap:var(--space-12)"></div>
+    </div>
+
+    <nav class="tabbar">
+      <button class="is-selected"><i data-lucide="house"></i>Inicio</button>
+      <button><i data-lucide="compass"></i>Explorar</button>
+      <button><i data-lucide="luggage"></i>Mis viajes</button>
+      <button><i data-lucide="user"></i>Cuenta</button>
+    </nav>
+  </section>
+
   <!-- ============ PASO 1 — COMPAÑÍA DE VIAJE ============ -->
-  <section id="paso1">
+  <section id="paso1" class="hidden">
     <header class="header">
-      <button class="icon-btn" aria-label="Volver"><i data-lucide="chevron-left"></i></button>
+      <button class="icon-btn" id="volver-home" aria-label="Volver"><i data-lucide="chevron-left"></i></button>
       <h1 class="header-title text-heading-m">Compañía de viaje</h1>
     </header>
 
@@ -805,7 +930,7 @@ body{
   </section>
 
   <!-- ============ CTA FIJO ============ -->
-  <div class="cta-bar" id="cta-bar">
+  <div class="cta-bar hidden" id="cta-bar">
     <p class="text-body-s t-tertiary hidden" id="cta-ayuda"
        style="margin:0 0 var(--space-8); text-align:center" aria-live="polite"></p>
     <button class="btn btn-primary" id="btn-continuar" disabled>Continuar</button>
@@ -972,7 +1097,7 @@ const RELACIONADOS = {
 let siguienteId = 1;
 
 const state = {
-  paso: 1,
+  paso: 0,
   pasajeros: [nuevoPasajero('adulto')],
   expandido: 1,     // id del pasajero abierto (patrón acordeón)
   sheet: null,      // config del bottom sheet abierto (ver cfgIntereses / cfgTipos)
@@ -1080,6 +1205,7 @@ function render() {
   renderPaso5();
   renderPaso6();
   renderPaso7();
+  renderHome();
   renderSheet();
   actualizarCTA();
   lucide.createIcons();
@@ -2810,13 +2936,62 @@ function renderPaso7() {
 }
 
 /* ============================================================
+   HOME
+   Vitrina de la app que ya existe. Los destinos salen del mismo
+   catálogo de paquetes: si mañana cambian, la home los sigue.
+   ============================================================ */
+/* A propósito no salen de PAQUETES: si la home mostrara los mismos
+   destinos, spoilearía el ranking antes de que Rodrigo lo pida. */
+const HOME_DESTINOS = [
+  { destino:'Bariloche',      usd:480,  tono:['#9FC7E8','#2B5E8C'] },
+  { destino:'Mendoza',        usd:390,  tono:['#E0C89B','#8A5A2B'] },
+  { destino:'Río de Janeiro', usd:620,  tono:['#8FE0B8','#1E7A5A'] },
+  { destino:'Madrid',         usd:1150, tono:['#F0C4A8','#A65230'] },
+  { destino:'Cusco',          usd:740,  tono:['#C9B8E8','#5B3F8C'] },
+];
+
+const HOME_OFERTAS = [
+  { titulo:'Termas de Río Hondo', bajada:'3 noches con desayuno', usd:310, off:30,
+    tono:['#A8DCE0','#256E78'] },
+  { titulo:'Costa Atlántica',     bajada:'5 noches frente al mar', usd:420, off:25,
+    tono:['#F2D6A8','#B07A2E'] },
+];
+
+/* La home siempre muestra pesos: es la vitrina local, y todavía no hay
+   ninguna preferencia de moneda cargada. El toggle aparece recién en el
+   paso 2, cuando la persona define su presupuesto. */
+function enPesos(usd) {
+  return `ARS ${(Math.round(usd * TC_USD_ARS / 1000) * 1000).toLocaleString('es-AR')}`;
+}
+
+function renderHome() {
+  $('home-destinos').innerHTML = HOME_DESTINOS.map(d => `
+    <button class="destino">
+      <div class="foto" style="background:linear-gradient(155deg, ${d.tono[0]}, ${d.tono[1]})"></div>
+      <div class="text-label-m">${d.destino}</div>
+      <div class="text-body-s t-tertiary">Desde ${enPesos(d.usd)}</div>
+    </button>`).join('');
+
+  $('home-ofertas').innerHTML = HOME_OFERTAS.map(o => `
+    <button class="fila" style="text-align:left; cursor:pointer">
+      <div class="fila-thumb" style="background:linear-gradient(155deg, ${o.tono[0]}, ${o.tono[1]})"></div>
+      <div class="fila-texto">
+        <div class="text-label-m">${o.titulo}</div>
+        <div class="text-body-s t-secondary">${o.bajada}</div>
+        <div class="text-body-s">Desde ${enPesos(o.usd)}</div>
+      </div>
+      <span class="tag" style="flex:none">-${o.off}%</span>
+    </button>`).join('');
+}
+
+/* ============================================================
    NAVEGACIÓN
    ============================================================ */
 /* El estado vive en memoria, así que ir y volver entre pasos no pierde nada. */
 function irAPaso(n) {
   state.paso = n;
-  [1, 2, 3, 4, 5, 6, 7].forEach(i => $('paso' + i).classList.toggle('hidden', n !== i));
-  $('cta-bar').classList.toggle('hidden', n >= 3);
+  [0, 1, 2, 3, 4, 5, 6, 7].forEach(i => $('paso' + i).classList.toggle('hidden', n !== i));
+  $('cta-bar').classList.toggle('hidden', n === 0 || n >= 3);
   if (n === 4) { state.detTab = 'estadia'; state.actBanda = 'todos'; }
   window.scrollTo(0, 0);
   render();
@@ -2849,7 +3024,10 @@ $('volver-paso5').onclick = () => irAPaso(5);
 $('btn-elegir').onclick = () => irAPaso(5);
 $('btn-pagar').onclick = () => irAPaso(6);
 $('btn-confirmar').onclick = () => irAPaso(7);
-$('btn-inicio').onclick = () => irAPaso(1);
+$('btn-inicio').onclick = () => irAPaso(0);
+$('ir-feature').onclick = () => irAPaso(1);
+/* Ahora el 'atrás' del paso 1 tiene a dónde volver. */
+$('volver-home').onclick = () => irAPaso(0);
 
 render();
 </script>

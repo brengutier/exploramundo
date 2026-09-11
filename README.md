@@ -32,8 +32,9 @@ sin routing ni navegación global. Mobile only, viewport de 390px. Light mode ú
 index.html    El prototipo completo. Es el entregable.
 tokens/       Los mismos tokens, separados por tipo, como referencia del
               design system. index.html los inlinea: si tocás uno, tocá los dos.
-assets/       Memojis de Fluentmoji en 256px. index.html los inlinea en
-              base64 a 128px para no depender de rutas relativas.
+assets/       Memojis de Fluentmoji. Los dos del paso 2 van inlineados en
+              base64; la brújula animada de la home va por ruta relativa,
+              porque es un APNG y en base64 sumaría ~800 KB al HTML.
 assets/paquetes/  Fotos de los 10 destinos y de sus hoteles. Se cargan por
               ruta relativa, no inline: ver el README de esa carpeta.
 design/       Referencias visuales del proto de Figma.
