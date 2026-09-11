@@ -275,6 +275,42 @@ body{
 .result:disabled{color:var(--text-disabled); cursor:not-allowed}
 .result .check{color:var(--text-primary); flex:none}
 
+/* --- card de paquete --- */
+.pack{
+  display:block; width:100%; padding:0; text-align:left; cursor:pointer;
+  background:var(--background-surface);
+  border:var(--border-width-default) solid var(--border-light);
+  border-radius:var(--radius-card); box-shadow:var(--shadow-card);
+  overflow:hidden; transition:border-color .15s ease, transform .12s ease;
+}
+.pack:hover{border-color:var(--border-dark)}
+.pack:active{transform:scale(.99)}
+.pack:focus-visible{outline:var(--border-width-thick) solid var(--background-brand); outline-offset:2px}
+/* El degradado queda de fondo: si la foto todavía no está en assets/,
+   la card se sigue viendo entera en vez de mostrar un hueco roto. */
+.pack-foto{position:relative; aspect-ratio:16/10}
+.pack-foto img{width:100%; height:100%; object-fit:cover; display:block}
+.pack-rank{
+  position:absolute; top:0; left:0;
+  padding:var(--space-6) var(--space-12);
+  background:var(--background-brand); color:var(--text-inverse);
+  border-radius:var(--radius-card) 0 var(--radius-lg) 0;
+  font:700 14px/20px var(--font-family-base);
+}
+.pack-info{padding:var(--space-16) var(--space-24) var(--space-24)}
+.pack-razon{color:var(--text-brand); margin:0 0 var(--space-16)}
+.pack-head{display:flex; align-items:flex-start; justify-content:space-between; gap:var(--space-16)}
+.pack-precio{flex:none; text-align:right}
+.pack-aviso{display:flex; align-items:center; gap:var(--space-6); color:var(--text-warning)}
+
+/* Etiqueta informativa: como el chip pero sin affordance de tocar. */
+.tag{
+  display:inline-flex; align-items:center; padding:var(--space-4) var(--space-12);
+  border:var(--border-width-default) solid var(--border-light);
+  border-radius:var(--radius-full); background:var(--background-surface);
+  color:var(--text-secondary); font:600 12px/16px var(--font-family-base);
+}
+
 /* --- avisos --- */
 .notice{
   display:flex; gap:var(--space-12); padding:var(--space-12) var(--space-16);
@@ -434,6 +470,7 @@ body{
 /* Los títulos que van arriba de un elemento con borde redondeado se
    corren 6px para acompañar ópticamente la curva. */
 .titulo-alineado{padding-left:6px; padding-right:6px}
+.t-primary{color:var(--text-primary)}
 .t-secondary{color:var(--text-secondary)}
 .t-tertiary{color:var(--text-tertiary)}
 .t-error{color:var(--text-error)}
@@ -504,19 +541,30 @@ body{
     </div>
   </section>
 
-  <!-- ============ PASO 3 — PLACEHOLDER ============ -->
+  <!-- ============ PASO 3 — RANKING DE PAQUETES ============ -->
   <section id="paso3" class="hidden">
     <header class="header">
       <button class="icon-btn" id="volver-paso2" aria-label="Volver"><i data-lucide="chevron-left"></i></button>
-      <h1 class="header-title text-heading-m">Tu top 10</h1>
+      <h1 class="header-title text-heading-m">Tu ranking</h1>
+    </header>
+    <div class="contenido">
+      <h2 class="text-heading-l" id="top-titulo" style="margin:var(--space-16) 0 var(--space-8)"></h2>
+      <p class="text-body t-secondary" id="top-bajada" style="margin:0 0 var(--space-24)"></p>
+      <div id="lista-paquetes" style="display:flex; flex-direction:column; gap:var(--space-24)"></div>
+    </div>
+  </section>
+
+  <!-- ============ PASO 4 — PLACEHOLDER ============ -->
+  <section id="paso4" class="hidden">
+    <header class="header">
+      <button class="icon-btn" id="volver-paso3" aria-label="Volver"><i data-lucide="chevron-left"></i></button>
+      <h1 class="header-title text-heading-m">Detalle del paquete</h1>
     </header>
     <div class="contenido" style="display:grid; place-items:center; text-align:center">
       <div>
-        <i data-lucide="compass" style="width:48px;height:48px;color:var(--text-tertiary)"></i>
-        <h2 class="text-heading-l" style="margin:var(--space-16) 0 var(--space-8)">Listado de paquetes</h2>
+        <i data-lucide="luggage" style="width:48px;height:48px;color:var(--text-tertiary)"></i>
+        <h2 class="text-heading-l" id="detalle-destino" style="margin:var(--space-16) 0 var(--space-8)"></h2>
         <p class="text-body t-secondary" style="margin:0">Próximamente.</p>
-        <p class="text-body-s t-tertiary" id="resumen-busqueda"
-           style="margin:var(--space-24) 0 0; text-align:left"></p>
       </div>
     </div>
   </section>
@@ -787,6 +835,7 @@ function plural(n, sing, pl) { return n === 1 ? `1 ${sing}` : `${n} ${pl}`; }
 function render() {
   renderPasajeros();
   renderPaso2();
+  renderPaso3();
   renderSheet();
   actualizarCTA();
   lucide.createIcons();
@@ -1530,14 +1579,198 @@ function resumenBusqueda() {
 }
 
 /* ============================================================
+   PAQUETES
+   Precios base en USD: si la persona eligió ARS, se convierten con
+   TC_USD_ARS, la misma cotización que usa el paso 2.
+   `intereses` es lo que ofrece el destino; el "cubre X de N" sale de
+   cruzarlo con lo que cargó la familia, no es un texto fijo.
+   `razon` y `highlight` están hardcodeados: en un producto real los
+   escupiría el algoritmo de match.
+   ============================================================ */
+const PAQUETES = [
+  { id:'riviera-maya', destino:'Riviera Maya', usd:9200, dias:15, noches:14,
+    incluye:'Vuelo + hotel + transfer', tono:['#7FD4D0','#1C7B8C'],
+    razon:'Perfecto para actividades familiares', highlight:'Ideal 6-8 años',
+    intereses:['playa','pileta','snorkel','buceo','navegacion','gastronomia','restaurantes',
+               'mercados','cultura','historia','museos','descanso','resort','parques',
+               'acuaticos','zoologico','juegos','peliculas','dulces','bares','compras'] },
+
+  { id:'curazao', destino:'Curazao', usd:9800, dias:15, noches:14,
+    incluye:'Vuelo + hotel + transfer', tono:['#6EC8E8','#15557F'],
+    razon:'Familias parecidas lo valoraron con 5★', highlight:'All inclusive',
+    intereses:['playa','pileta','snorkel','buceo','navegacion','kayak','descanso','resort',
+               'gastronomia','restaurantes','bares','naturaleza','avistaje','juegos',
+               'peliculas','dulces','arquitectura'] },
+
+  { id:'bayahibe', destino:'Bayahibe', usd:8800, dias:15, noches:14,
+    incluye:'Vuelo + hotel + transfer', tono:['#8FE0C8','#1E7A64'],
+    razon:'Mejor relación precio/paquete', highlight:'Mejor época',
+    intereses:['playa','pileta','snorkel','buceo','navegacion','descanso','resort',
+               'gastronomia','restaurantes','naturaleza','juegos','dulces','peliculas'] },
+
+  { id:'aruba', destino:'Aruba', usd:9300, dias:15, noches:14,
+    incluye:'Vuelo + hotel + transfer', tono:['#FFD79A','#D98324'],
+    razon:'Ideal para descanso y naturaleza', highlight:'Relax',
+    intereses:['playa','pileta','snorkel','navegacion','surf','descanso','resort','spa',
+               'gastronomia','restaurantes','bares','compras','naturaleza','juegos'] },
+
+  { id:'porto-de-galinhas', destino:'Porto de Galinhas', usd:8400, dias:15, noches:14,
+    incluye:'Vuelo + hotel + transfer', tono:['#9BE7A8','#227A46'],
+    razon:'Cultura y naturaleza', highlight:'Kids Club',
+    intereses:['playa','pileta','snorkel','navegacion','naturaleza','avistaje','descanso',
+               'resort','gastronomia','mercados','cultura','juegos','dulces'] },
+
+  { id:'punta-cana', destino:'Punta Cana', usd:8900, dias:15, noches:14,
+    incluye:'Vuelo + hotel + transfer + excursiones', tono:['#7FD8E0','#186C8A'],
+    razon:'Todo resuelto: no organizan nada al llegar', highlight:'All inclusive',
+    intereses:['playa','pileta','snorkel','buceo','navegacion','kayak','golf','descanso',
+               'resort','spa','gastronomia','restaurantes','bares','juegos','acuaticos',
+               'dulces','peliculas'] },
+
+  { id:'cancun', destino:'Cancún', usd:10400, dias:15, noches:14,
+    incluye:'Vuelo + hotel + transfer', tono:['#8ED9F0','#1A5E9C'],
+    razon:'El mejor mix de playa y cultura', highlight:'Parques temáticos',
+    intereses:['playa','pileta','snorkel','buceo','navegacion','gastronomia','restaurantes',
+               'mercados','cultura','historia','museos','parques','acuaticos','zoologico',
+               'descanso','resort','bares','compras','juegos','peliculas','videojuegos'] },
+
+  { id:'florianopolis', destino:'Florianópolis', usd:6900, dias:15, noches:14,
+    incluye:'Vuelo + hotel + transfer', tono:['#A8E6A0','#2E7D4F'],
+    razon:'El vuelo más corto de la lista', highlight:'Vuelo directo',
+    intereses:['playa','pileta','surf','trekking','naturaleza','ciclismo','descanso',
+               'gastronomia','restaurantes','mercados','bares','juegos','futbol','dulces'] },
+
+  { id:'san-andres', destino:'San Andrés', usd:7600, dias:15, noches:14,
+    incluye:'Vuelo + hotel + transfer', tono:['#7EE0D8','#12707A'],
+    razon:'Agua calma para que los chicos naden tranquilos', highlight:'Snorkel incluido',
+    intereses:['playa','pileta','snorkel','buceo','navegacion','kayak','descanso','resort',
+               'gastronomia','mercados','musica','bares','juegos','dulces'] },
+
+  { id:'buzios', destino:'Búzios', usd:7200, dias:15, noches:14,
+    incluye:'Vuelo + hotel + transfer', tono:['#FFC9B0','#C4562E'],
+    razon:'La opción más tranquila del ranking', highlight:'Playas familiares',
+    intereses:['playa','pileta','surf','navegacion','kayak','descanso','spa','pueblos',
+               'gastronomia','restaurantes','compras','bares','juegos','dulces'] },
+];
+
+/* Intereses únicos de toda la familia: es el denominador del "cubre X de N". */
+function interesesFamilia() {
+  return [...new Set(state.pasajeros.flatMap(p => p.intereses))];
+}
+
+function precioEn(usd) {
+  if (pref.moneda !== 'ARS') return usd;
+  return Math.round(usd * TC_USD_ARS / 1000) * 1000;
+}
+
+/* Límites exactos: no se muestra nada fuera del rango.
+   Límites flexibles: se muestra todo, y lo que se pasa se avisa en la card. */
+function paquetesDelRanking() {
+  return PAQUETES
+    .map(p => {
+      const precio = precioEn(p.usd);
+      return { ...p, precio, excede: Math.max(0, precio - pref.max) };
+    })
+    .filter(p => pref.limites !== 'exactos' || (p.precio <= pref.max && p.precio >= pref.min));
+}
+
+function renderPaso3() {
+  const cont = $('lista-paquetes');
+  const lista = paquetesDelRanking();
+  const fam = interesesFamilia();
+  cont.innerHTML = '';
+
+  if (!lista.length) {
+    $('top-titulo').textContent = 'Nada entra en ese presupuesto';
+    $('top-bajada').textContent =
+      `Con límites exactos descartamos todo lo que se va de ${plata(pref.min)} a ${plata(pref.max)}.`;
+    cont.append(vacioPresupuesto());
+    return;
+  }
+
+  $('top-titulo').textContent = `Top ${lista.length} para tu familia`;
+  $('top-bajada').textContent =
+    'Seleccionamos estos destinos y paquetes para que solo te ocupes de disfrutar.';
+  lista.forEach((p, i) => cont.append(cardPaquete(p, i + 1, fam)));
+}
+
+function vacioPresupuesto() {
+  const el = document.createElement('div');
+  el.className = 'card';
+  el.style.textAlign = 'center';
+  el.innerHTML = `
+    <i data-lucide="search-x" style="width:32px;height:32px;color:var(--text-tertiary)"></i>
+    <p class="text-body t-secondary" style="margin:var(--space-12) 0 var(--space-24)">
+      Si aceptás opciones un poco por encima de tu máximo, tenemos paquetes para mostrarte.
+    </p>
+    <button class="btn btn-primary">Permitir límites flexibles</button>`;
+  el.querySelector('button').onclick = () => { pref.limites = 'flexibles'; render(); };
+  return el;
+}
+
+function cardPaquete(p, puesto, fam) {
+  const el = document.createElement('article');
+  el.className = 'pack';
+  el.tabIndex = 0;
+  el.setAttribute('role', 'button');
+
+  /* Sin intereses cargados el chip no diría nada, así que queda solo el highlight. */
+  const tags = [];
+  if (fam.length) {
+    const cubre = p.intereses.filter(i => fam.includes(i)).length;
+    tags.push(`Cubre ${cubre} de ${fam.length} intereses`);
+  }
+  tags.push(p.highlight);
+
+  el.innerHTML = `
+    <div class="pack-foto" style="background:linear-gradient(155deg, ${p.tono[0]}, ${p.tono[1]})">
+      <img src="assets/paquetes/${p.id}.jpg" alt="" onerror="this.remove()">
+      <span class="pack-rank">#${puesto}</span>
+    </div>
+    <div class="pack-info">
+      <p class="pack-razon text-label-m">${p.razon}</p>
+      <div class="pack-head">
+        <div style="min-width:0">
+          <h3 class="text-heading-l" style="margin:0">${p.destino}</h3>
+          <p class="text-body-s t-primary" style="margin:var(--space-4) 0 0">
+            ${p.dias} días / ${p.noches} noches<br>${p.incluye}
+          </p>
+        </div>
+        <div class="pack-precio">
+          <div class="text-heading-l">${plata(p.precio)}</div>
+          <div class="text-body-s t-secondary">Precio total</div>
+        </div>
+      </div>
+      ${p.excede ? `<p class="pack-aviso text-body-s" style="margin:var(--space-16) 0 0">
+        <i data-lucide="alert-circle" style="width:16px;height:16px"></i>
+        Se pasa ${plata(p.excede)} de tu máximo</p>` : ''}
+      <div class="chips" style="margin-top:var(--space-16)">
+        ${tags.map(t => `<span class="tag">${t}</span>`).join('')}
+      </div>
+    </div>`;
+
+  const abrir = () => verPaquete(p);
+  el.onclick = abrir;
+  el.onkeydown = e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); abrir(); }
+  };
+  return el;
+}
+
+function verPaquete(p) {
+  state.paquete = p;
+  irAPaso(4);
+}
+
+/* ============================================================
    NAVEGACIÓN
    ============================================================ */
 /* El estado vive en memoria, así que ir y volver entre pasos no pierde nada. */
 function irAPaso(n) {
   state.paso = n;
-  [1, 2, 3].forEach(i => $('paso' + i).classList.toggle('hidden', n !== i));
-  $('cta-bar').classList.toggle('hidden', n === 3);
-  if (n === 3) $('resumen-busqueda').textContent = resumenBusqueda();
+  [1, 2, 3, 4].forEach(i => $('paso' + i).classList.toggle('hidden', n !== i));
+  $('cta-bar').classList.toggle('hidden', n >= 3);
+  if (n === 4) $('detalle-destino').textContent = state.paquete ? state.paquete.destino : '';
   window.scrollTo(0, 0);
   render();
 }
@@ -1563,6 +1796,7 @@ $('scrim').onclick = cerrarSheet;
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && state.sheet) cerrarSheet(); });
 $('volver-paso1').onclick = () => irAPaso(1);
 $('volver-paso2').onclick = () => irAPaso(2);
+$('volver-paso3').onclick = () => irAPaso(3);
 
 render();
 </script>
