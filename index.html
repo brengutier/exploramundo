@@ -223,6 +223,11 @@ body{
 .btn-primary:disabled{
   background:var(--background-disabled); color:var(--text-inverse); cursor:not-allowed;
 }
+.btn-secondary{
+  background:var(--background-surface); color:var(--text-primary);
+  border:var(--border-width-default) solid var(--border-dark);
+}
+.btn-secondary:hover{background:var(--color-neutral-50); border-color:var(--border-blackish)}
 .btn-link{
   background:none; border:none; padding:0; cursor:pointer;
   font:600 14px/20px var(--font-family-base);
@@ -416,6 +421,11 @@ body{
   font:700 11px/1 var(--font-family-base); color:#1A1F71; letter-spacing:.5px;
 }
 
+/* --- resumen --- */
+.divisor{height:1px; background:var(--border-light); margin:var(--space-16) 0}
+.fila-monto{display:flex; align-items:baseline; justify-content:space-between; gap:var(--space-16)}
+.fila-monto span:last-child{flex:none}
+
 /* --- avisos --- */
 .notice{
   display:flex; gap:var(--space-12); padding:var(--space-12) var(--space-16);
@@ -455,6 +465,7 @@ body{
   border-radius:var(--radius-card); box-shadow:var(--shadow-card);
 }
 .acordeon + .acordeon{margin-top:var(--space-12)}
+.acordeon--plano{box-shadow:none}
 .acordeon-head{
   width:100%; display:flex; align-items:center; justify-content:space-between;
   gap:var(--space-16); padding:var(--space-16) var(--space-24);
@@ -751,17 +762,34 @@ body{
     </div>
   </section>
 
-  <!-- ============ PASO 6 — PLACEHOLDER ============ -->
+  <!-- ============ PASO 6 — RESUMEN / CHECKOUT ============ -->
   <section id="paso6" class="hidden">
     <header class="header">
       <button class="icon-btn" id="volver-paso5" aria-label="Volver"><i data-lucide="chevron-left"></i></button>
       <h1 class="header-title text-heading-m">Resumen</h1>
     </header>
-    <div class="contenido" style="display:grid; place-items:center; text-align:center">
+
+    <div class="contenido">
+      <div class="card card--plana" id="res-paquete"
+           style="padding:0; overflow:hidden; margin-top:var(--space-16)"></div>
+      <div class="card card--detalle card--plana" id="res-pago" style="margin-top:var(--space-16)"></div>
+      <div class="acordeon acordeon--plano" id="res-desglose" style="margin-top:var(--space-16)"></div>
+    </div>
+
+    <div class="cta-bar">
+      <button class="btn btn-primary" id="btn-confirmar">Confirmar compra</button>
+    </div>
+  </section>
+
+  <!-- ============ PASO 7 — PLACEHOLDER ============ -->
+  <section id="paso7" class="hidden">
+    <div class="contenido" style="display:grid; place-items:center; text-align:center; min-height:100dvh">
       <div>
-        <i data-lucide="receipt" style="width:48px;height:48px;color:var(--text-tertiary)"></i>
-        <h2 class="text-heading-l" style="margin:var(--space-16) 0 var(--space-8)">Resumen final</h2>
-        <p class="text-body t-secondary" style="margin:0">Próximamente.</p>
+        <i data-lucide="party-popper" style="width:48px;height:48px;color:var(--text-tertiary)"></i>
+        <h2 class="text-heading-l" style="margin:var(--space-16) 0 var(--space-8)">¡Listo!</h2>
+        <p class="text-body t-secondary" style="margin:0 0 var(--space-24)">Pantalla de éxito, próximamente.</p>
+        <button class="btn btn-secondary" id="volver-paso6" style="width:auto; padding:var(--space-12) var(--space-24)">
+          Volver al resumen</button>
       </div>
     </div>
   </section>
@@ -942,6 +970,7 @@ const state = {
   paquete: null,    // paquete abierto en el detalle
   detTab: 'estadia',
   actBanda: 'todos',
+  desglose: false,  // acordeón del resumen
 };
 
 function nuevoPasajero(tipo) {
@@ -1038,6 +1067,7 @@ function render() {
   renderPaso3();
   renderPaso4();
   renderPaso5();
+  renderPaso6();
   renderSheet();
   actualizarCTA();
   lucide.createIcons();
@@ -2203,11 +2233,13 @@ function nochesDe(desde, hasta) {
   return Math.round((aDate(hasta) - aDate(desde)) / 86400000);
 }
 
-function resumenPasajeros() {
+/* El quiz del paso 1 rotula "Adulto" y "Menor", así que el resto del
+   prototipo usa el mismo vocabulario y solo cambia el separador. */
+function resumenPasajeros(sep = ' + ') {
   const a = adultos().length, m = state.pasajeros.length - a;
   const partes = [plural(a, 'adulto', 'adultos')];
-  if (m) partes.push(plural(m, 'niño', 'niños'));
-  return partes.join(' + ');
+  if (m) partes.push(plural(m, 'menor', 'menores'));
+  return partes.join(sep);
 }
 
 /* Solo las franjas que tienen al menos un pasajero cargado: una familia
@@ -2584,12 +2616,118 @@ function renderTotal() {
 }
 
 /* ============================================================
+   RESUMEN / CHECKOUT
+   Nada se vuelve a cargar: todo sale del paquete elegido y de la
+   calculadora del paso 5. El desglose reparte el precio por concepto
+   con porcentajes fijos, y la última fila absorbe el redondeo para
+   que la suma cierre exacta.
+   ============================================================ */
+const DESGLOSE = [
+  { label: () => `Vuelos · ${plural(state.pasajeros.length, 'pasajero', 'pasajeros')}`, pct: 0.45 },
+  { label: n  => `Alojamiento · ${plural(n, 'noche', 'noches')}`,                        pct: 0.40 },
+  { label: () => 'Traslados',                                                            pct: 0.05 },
+  { label: () => 'Impuestos y tasas',                                                    pct: 0.10 },
+];
+
+function filasDesglose(noches) {
+  const c = calculoPago();
+  const filas = [];
+  let acum = 0;
+  DESGLOSE.forEach((d, i) => {
+    /* La última fila es el resto: así los redondeos nunca desbalancean. */
+    const v = i === DESGLOSE.length - 1 ? c.precio - acum : Math.round(c.precio * d.pct);
+    acum += v;
+    filas.push({ label: d.label(noches), valor: v });
+  });
+  if (c.descuento) {
+    filas.push({ label: `Descuento por ${millasFmt(pago.millas)} millas`,
+                 valor: -Math.round(c.descuento), brand: true });
+  }
+  if (c.recargo) {
+    filas.push({ label: `Interés en ${pago.cuotas} cuotas`,
+                 valor: Math.round(c.total - c.subtotal) });
+  }
+  return filas;
+}
+
+function renderPaso6() {
+  if (!state.paquete) return;
+  const paq = state.paquete;
+  const c = calculoPago();
+  const { desde, hasta } = fechasViaje(paq);
+  const noches = nochesDe(desde, hasta);
+
+  $('res-paquete').innerHTML = `
+    <div class="det-foto" style="height:150px; border-radius:0;
+         background:linear-gradient(155deg, ${paq.tono[0]}, ${paq.tono[1]})">
+      <img src="assets/paquetes/${paq.id}.jpg" alt="" onerror="this.remove()">
+    </div>
+    <div style="padding:var(--space-16)">
+      <p class="text-heading-l" style="margin:0">
+        ${paq.destino} • ${noches + 1} días / ${plural(noches, 'noche', 'noches')}</p>
+      <p class="text-body-s t-secondary" style="margin:var(--space-8) 0 0">
+        ${resumenPasajeros(', ')} &nbsp;|&nbsp; ${paq.incluye}</p>
+    </div>`;
+
+  $('res-pago').innerHTML = `
+    <div class="det-head">
+      <span class="text-heading-m">Método de pago</span>
+      <button class="btn-link btn-link--brand" id="res-editar">Editar</button>
+    </div>
+    <div class="tarjeta">
+      <span class="marca">VISA</span>
+      <span class="text-body-medium">•••• 4521</span>
+    </div>
+    <div class="divisor"></div>
+    <p class="text-body t-tertiary" style="margin:0">
+      Total a pagar • ${plural(state.pasajeros.length, 'persona', 'personas')}</p>
+    <div style="display:flex; align-items:center; gap:var(--space-12);
+         flex-wrap:wrap; margin-top:var(--space-8)">
+      <span class="text-heading-2xl">${plata(Math.round(c.total))}</span>
+      ${pago.millas ? `<span class="tag">+${millasFmt(pago.millas)} millas</span>` : ''}
+    </div>
+    <p class="text-heading-m" style="margin:var(--space-8) 0 0">
+      ${c.cuota === c.total ? 'Un solo pago' : `${pago.cuotas} cuotas de ${plataDec(c.cuota)}`}</p>
+    <p class="text-body-s t-tertiary" style="margin:var(--space-16) 0 0">
+      ${c.recargo ? 'Impuestos, tasas e interés incluidos.' : 'Impuestos y tasas incluidos.'}</p>`;
+
+  /* "Editar" vuelve al paso de pago: no es un link externo como los otros. */
+  $('res-editar').onclick = () => irAPaso(5);
+
+  renderDesglose(noches, c);
+}
+
+function renderDesglose(noches, c) {
+  const abierto = state.desglose;
+  $('res-desglose').innerHTML = `
+    <button class="acordeon-head" id="res-toggle">
+      <span>Ver desglose por concepto</span>
+      <i data-lucide="${abierto ? 'chevron-up' : 'chevron-down'}"></i>
+    </button>
+    ${abierto ? `
+      <div class="acordeon-body" style="gap:var(--space-12)">
+        ${filasDesglose(noches).map(f => `
+          <div class="fila-monto">
+            <span class="text-body-s t-secondary">${f.label}</span>
+            <span class="text-body-s ${f.brand ? 'det-highlight' : ''}">${
+              f.valor < 0 ? '- ' : ''}${plata(Math.abs(f.valor))}</span>
+          </div>`).join('')}
+        <div class="divisor" style="margin:0"></div>
+        <div class="fila-monto">
+          <span class="text-body-medium">Total</span>
+          <span class="text-body-medium">${plata(Math.round(c.total))}</span>
+        </div>
+      </div>` : ''}`;
+  $('res-toggle').onclick = () => { state.desglose = !state.desglose; render(); };
+}
+
+/* ============================================================
    NAVEGACIÓN
    ============================================================ */
 /* El estado vive en memoria, así que ir y volver entre pasos no pierde nada. */
 function irAPaso(n) {
   state.paso = n;
-  [1, 2, 3, 4, 5, 6].forEach(i => $('paso' + i).classList.toggle('hidden', n !== i));
+  [1, 2, 3, 4, 5, 6, 7].forEach(i => $('paso' + i).classList.toggle('hidden', n !== i));
   $('cta-bar').classList.toggle('hidden', n >= 3);
   if (n === 4) { state.detTab = 'estadia'; state.actBanda = 'todos'; }
   window.scrollTo(0, 0);
@@ -2622,6 +2760,8 @@ $('volver-paso4').onclick = () => irAPaso(4);
 $('volver-paso5').onclick = () => irAPaso(5);
 $('btn-elegir').onclick = () => irAPaso(5);
 $('btn-pagar').onclick = () => irAPaso(6);
+$('btn-confirmar').onclick = () => irAPaso(7);
+$('volver-paso6').onclick = () => irAPaso(6);
 
 render();
 </script>
