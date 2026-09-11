@@ -228,6 +228,8 @@ body{
   font:600 14px/20px var(--font-family-base);
   color:var(--text-primary); text-decoration:underline;
 }
+/* Link de marca: se usa cuando compite con otro link neutro al lado. */
+.btn-link--brand{color:var(--text-brand)}
 .btn-danger{
   display:inline-flex; align-items:center; gap:var(--space-6);
   background:none; border:none; padding:0; cursor:pointer;
@@ -723,8 +725,8 @@ body{
         </div>
         <div class="tarjeta">
           <span class="marca">VISA</span>
-          <span class="text-body">•••• 4521</span>
-          <button class="btn-link" style="margin-left:auto">Cambiar tarjeta</button>
+          <span class="text-body-medium">•••• 4521</span>
+          <button class="btn-link btn-link--brand" style="margin-left:auto">Cambiar tarjeta</button>
         </div>
       </div>
       <button class="btn-link" style="margin-top:var(--space-12)">Agregar otro método de pago</button>
@@ -2507,8 +2509,7 @@ function renderPaso5() {
   aviso.classList.toggle('hidden', !rec);
   if (rec) {
     aviso.innerHTML = `<i data-lucide="alert-circle" style="flex:none"></i>
-      <span class="text-body-s">En ${pago.cuotas} cuotas se suma un
-      ${Math.round(rec * 100)}% de recargo por financiación.</span>`;
+      <span class="text-label-s">En ${pago.cuotas} cuotas se suma un ${Math.round(rec * 100)}% de interés.</span>`;
   }
 
   /* --- moneda: la puede cambiar acá sin volver al paso 2 --- */
@@ -2530,7 +2531,7 @@ function renderMillas() {
   const pct = (pago.millas / MILLAS_SALDO) * 100;
   $('pago-millas').innerHTML = `
     <div class="det-head">
-      <span class="text-body">${millasFmt(pago.millas)} millas</span>
+      <span class="text-body-medium">${millasFmt(pago.millas)} millas</span>
       <span class="text-label-m det-highlight" id="millas-ahorro"></span>
     </div>
     <div class="rango" style="margin-top:var(--space-16)">
