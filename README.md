@@ -34,8 +34,26 @@ tokens/       Los mismos tokens, separados por tipo, como referencia del
               design system. index.html los inlinea: si tocás uno, tocá los dos.
 assets/       Memojis de Fluentmoji en 256px. index.html los inlinea en
               base64 a 128px para no depender de rutas relativas.
+assets/paquetes/  Fotos de los 10 destinos del ranking. Se cargan por ruta
+              relativa, no inline: ver el README de esa carpeta.
 design/       Referencias visuales del proto de Figma.
 ```
+
+## Reglas que resuelve el prototipo
+
+No son mocks: se calculan con los datos que carga la persona.
+
+- **Pasajeros.** Adulto es 18+, menor 0–17. Siempre tiene que quedar un adulto,
+  así que "Eliminar" se deshabilita en el último. Nombre y edad obligatorios.
+- **Intereses.** Máximo 5 por persona, opcionales. Los sugeridos dependen de la
+  franja etaria, y el buscador resuelve en tres niveles: nombre, sinónimo y
+  —si no hay match— categorías similares. No se pueden crear intereses nuevos.
+- **Presupuesto.** Con *límites exactos* el ranking descarta lo que se va del
+  rango; con *flexibles* lo muestra y avisa cuánto se pasa. El toggle ARS/USD
+  convierte los montos con una cotización fija.
+- **Ranking.** El "cubre X de N intereses" cruza lo que ofrece cada destino con
+  los intereses únicos de toda la familia. Si no cargaron ninguno, la etiqueta
+  desaparece en vez de mostrar un cero.
 
 ## Design tokens
 
@@ -55,4 +73,6 @@ helper text y elementos de UI, no para texto que haya que leer sí o sí.
 - [x] Tokens de tipografía, color, spacing, radius y sombra
 - [x] Pantalla 1 — Onboarding Step 1 (perfil familiar)
 - [x] Pantalla 2 — Onboarding Step 2 (preferencias)
-- [ ] Pantallas 3 a 7
+- [x] Pantalla 3 — Ranking de paquetes (top 10)
+- [ ] Fotos de los 10 destinos en `assets/paquetes/`
+- [ ] Pantallas 4 a 7
