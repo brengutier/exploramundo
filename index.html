@@ -2575,7 +2575,7 @@ function renderTotal() {
     <p class="text-heading-m" style="margin:var(--space-8) 0 0">
       ${c.cuota === c.total ? 'Un solo pago' : `${pago.cuotas} cuotas de ${plataDec(c.cuota)}`}
     </p>
-    <p class="text-body-s t-tertiary" style="margin:var(--space-12) 0 0">
+    <p class="text-body-s t-tertiary" style="margin:var(--space-16) 0 0">
       ${c.recargo
         ? `Impuestos, tasas y ${Math.round(c.recargo * 100)}% de recargo incluidos.`
         : 'Impuestos y tasas incluidos.'}
