@@ -20,11 +20,11 @@ sin routing ni navegación global. Mobile only, viewport de 390px. Light mode ú
 
 1. Onboarding / perfil familiar — Step 1 (pasajeros e intereses)
 2. Onboarding / preferencias — Step 2 (destino, fechas, actividad, presupuesto)
-3. Listado de paquetes (top 10)
-4. Detalle de paquete (tabs Estadía/Traslados, sticky price/CTA)
-5. Simulador de pago (slider de millas + cuotas 1x/3x/6x/12x + tarjeta)
-6. Resumen final
-7. Success page
+3. Ranking de paquetes (top 10)
+4. Detalle del paquete (tabs Estadía/Traslados, CTA flotante con el precio)
+5. Forma de pago (millas, cuotas 1x/3x/6x/12x, tarjeta y moneda)
+6. Resumen / checkout (con desglose por concepto)
+7. Compra confirmada
 
 ## Estructura
 
@@ -63,6 +63,15 @@ No son mocks: se calculan con los datos que carga la persona.
   pasajero, y las incluidas van primero.
 - **Vuelos.** Rodrigo sale de Córdoba, así que todo internacional hace escala
   en Buenos Aires, y la vuelta invierte el recorrido.
+- **Pago.** Las millas descuentan a 0,05 USD cada una y topean en el saldo, no
+  en el precio: el paquete nunca se paga entero con millas. Las cuotas reparten
+  el total y solo 12 suma interés, avisado antes de elegir. El toggle ARS/USD
+  se puede volver a tocar acá y recalcula todo.
+- **Resumen.** El desglose por concepto reparte el precio con porcentajes fijos
+  y la última fila absorbe el redondeo, así la suma cierra exacta con descuento
+  e interés incluidos.
+- **Vocabulario.** Los pasajeros son "adultos y menores" en todo el flujo, como
+  los rotula el quiz del paso 1.
 
 ## Design tokens
 
@@ -84,7 +93,7 @@ helper text y elementos de UI, no para texto que haya que leer sí o sí.
 - [x] Pantalla 2 — Onboarding Step 2 (preferencias)
 - [x] Pantalla 3 — Ranking de paquetes (top 10)
 - [x] Pantalla 4 — Detalle del paquete (estadía y traslados)
+- [x] Pantalla 5 — Forma de pago (millas, cuotas y moneda)
+- [x] Pantalla 6 — Resumen / checkout
+- [x] Pantalla 7 — Compra confirmada
 - [ ] Fotos de los destinos y hoteles en `assets/paquetes/`
-- [ ] Pantalla 5 — Simulador de pago
-- [ ] Pantalla 6 — Resumen final
-- [ ] Pantalla 7 — Success

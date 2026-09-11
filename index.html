@@ -426,6 +426,16 @@ body{
 .fila-monto{display:flex; align-items:baseline; justify-content:space-between; gap:var(--space-16)}
 .fila-monto span:last-child{flex:none}
 
+/* --- éxito --- */
+.exito-marca{
+  width:72px; height:72px; margin:0 auto; display:grid; place-items:center;
+  border-radius:var(--radius-full);
+  background:var(--surface-success); color:var(--text-success);
+}
+.exito-marca [data-lucide]{width:32px; height:32px; stroke-width:2.5}
+.paso-sigue{display:flex; gap:var(--space-12); text-align:left}
+.paso-sigue [data-lucide]{flex:none; color:var(--text-tertiary); margin-top:2px}
+
 /* --- avisos --- */
 .notice{
   display:flex; gap:var(--space-12); padding:var(--space-12) var(--space-16);
@@ -781,15 +791,15 @@ body{
     </div>
   </section>
 
-  <!-- ============ PASO 7 — PLACEHOLDER ============ -->
+  <!-- ============ PASO 7 — COMPRA CONFIRMADA ============ -->
+  <!-- Sin botón de volver: la compra ya se hizo, retroceder al checkout
+       no tendría sentido. La salida es hacia adelante. -->
   <section id="paso7" class="hidden">
-    <div class="contenido" style="display:grid; place-items:center; text-align:center; min-height:100dvh">
-      <div>
-        <i data-lucide="party-popper" style="width:48px;height:48px;color:var(--text-tertiary)"></i>
-        <h2 class="text-heading-l" style="margin:var(--space-16) 0 var(--space-8)">¡Listo!</h2>
-        <p class="text-body t-secondary" style="margin:0 0 var(--space-24)">Pantalla de éxito, próximamente.</p>
-        <button class="btn btn-secondary" id="volver-paso6" style="width:auto; padding:var(--space-12) var(--space-24)">
-          Volver al resumen</button>
+    <div class="contenido" id="exito"></div>
+    <div class="cta-bar">
+      <button class="btn btn-primary">Ver en Mis viajes</button>
+      <div style="text-align:center; margin-top:var(--space-16)">
+        <button class="btn-link" id="btn-inicio">Volver a Inicio</button>
       </div>
     </div>
   </section>
@@ -971,6 +981,7 @@ const state = {
   detTab: 'estadia',
   actBanda: 'todos',
   desglose: false,  // acordeón del resumen
+  reserva: null,    // número de reserva, se genera al confirmar
 };
 
 function nuevoPasajero(tipo) {
@@ -1068,6 +1079,7 @@ function render() {
   renderPaso4();
   renderPaso5();
   renderPaso6();
+  renderPaso7();
   renderSheet();
   actualizarCTA();
   lucide.createIcons();
@@ -2722,6 +2734,82 @@ function renderDesglose(noches, c) {
 }
 
 /* ============================================================
+   COMPRA CONFIRMADA
+   Cierra el flujo contestando lo que alguien se pregunta después de
+   pagar: si salió bien, con qué número reclamar, y qué pasa ahora.
+   ============================================================ */
+/* El número se arma una sola vez: si se recalculara en cada render,
+   cambiaría solo al tocar cualquier cosa de la pantalla. */
+function numeroReserva() {
+  if (!state.reserva) {
+    const n = Math.floor(100000 + Math.random() * 900000);
+    state.reserva = `EXP-${n}`;
+  }
+  return state.reserva;
+}
+
+/* "1 al 15 de noviembre de 2026", o con los dos meses si se cruzan. */
+function rangoFechas(desde, hasta) {
+  const d = aDate(desde), h = aDate(hasta);
+  const mes = i => MESES[i].toLowerCase();
+  return d.getMonth() === h.getMonth() && d.getFullYear() === h.getFullYear()
+    ? `${d.getDate()} al ${h.getDate()} de ${mes(d.getMonth())} de ${h.getFullYear()}`
+    : `${d.getDate()} de ${mes(d.getMonth())} al ${h.getDate()} de ${mes(h.getMonth())} de ${h.getFullYear()}`;
+}
+
+function renderPaso7() {
+  if (!state.paquete) return;
+  const paq = state.paquete;
+  const c = calculoPago();
+  const { desde, hasta } = fechasViaje(paq);
+  const quien = adultos()[0]?.nombre.trim();
+
+  $('exito').innerHTML = `
+    <!-- padding y no margin: esta pantalla no tiene header, y un margin-top
+           se escaparía del contenedor dejando ver el fondo del body. -->
+      <div style="text-align:center; padding-top:var(--space-48)">
+      <div class="exito-marca"><i data-lucide="check"></i></div>
+      <h1 class="text-heading-xl" style="margin:var(--space-24) 0 0">
+        ${quien ? `¡Listo, ${quien}!` : '¡Listo!'}</h1>
+    </div>
+
+    <div class="card card--detalle" style="margin-top:var(--space-32)">
+      <div class="fila-monto">
+        <span class="text-body-s t-secondary">Número de reserva</span>
+        <span class="text-heading-l">${numeroReserva()}</span>
+      </div>
+      <div class="divisor"></div>
+      <p class="text-heading-m" style="margin:0">${paq.destino}</p>
+      <p class="text-body-s t-secondary" style="margin:var(--space-4) 0 0">
+        ${rangoFechas(desde, hasta)}</p>
+      <p class="text-body-s t-secondary" style="margin:var(--space-4) 0 0">
+        ${resumenPasajeros(', ')} · ${paq.incluye}</p>
+      <div class="divisor"></div>
+      <div class="fila-monto">
+        <span class="text-body-s t-secondary">Pagaste</span>
+        <span class="text-body-medium">${plata(Math.round(c.total))}</span>
+      </div>
+      <p class="text-body-s t-tertiary" style="margin:var(--space-4) 0 0">
+        ${c.cuota === c.total ? 'En un solo pago' : `En ${pago.cuotas} cuotas de ${plataDec(c.cuota)}`}</p>
+    </div>
+
+    <div class="card card--detalle card--plana" style="margin-top:var(--space-16)">
+      <div class="paso-sigue">
+        <i data-lucide="mail"></i>
+        <div>
+          <p class="text-label-m" style="margin:0">Te mandamos el detalle por mail</p>
+          <p class="text-body-s t-secondary" style="margin:var(--space-4) 0 0">
+            Vas a poder ver la factura, reserva del hotel, vuelos y traslado.</p>
+        </div>
+      </div>
+      <div class="divisor"></div>
+      <p class="text-body-s t-secondary" style="margin:0">
+        No te olvides de revisar la documentación y tener los pasaportes
+        vigentes.</p>
+    </div>`;
+}
+
+/* ============================================================
    NAVEGACIÓN
    ============================================================ */
 /* El estado vive en memoria, así que ir y volver entre pasos no pierde nada. */
@@ -2761,7 +2849,7 @@ $('volver-paso5').onclick = () => irAPaso(5);
 $('btn-elegir').onclick = () => irAPaso(5);
 $('btn-pagar').onclick = () => irAPaso(6);
 $('btn-confirmar').onclick = () => irAPaso(7);
-$('volver-paso6').onclick = () => irAPaso(6);
+$('btn-inicio').onclick = () => irAPaso(1);
 
 render();
 </script>
