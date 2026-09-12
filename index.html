@@ -495,6 +495,10 @@ body{
 }
 .destino .foto{
   height:100px; border-radius:var(--radius-lg); margin-bottom:var(--space-8);
+  overflow:hidden;
+}
+.destino .foto img, .fila-thumb img{
+  width:100%; height:100%; object-fit:cover; display:block;
 }
 
 /* Barra de navegación: inerte, está para ubicar la feature dentro de la app.
@@ -2169,11 +2173,11 @@ const DETALLES = {
             habitacion:'Habitación familiar: 1 cama king, 2 individuales',
             tags:['Kids club 4-12','3 piletas','8 restaurantes'] },
     actividades:[
-      { nombre:'Cenote en familia', horas:3, precio:0, edades:[6,120] },
-      { nombre:'Tulum arqueológico', horas:4, precio:180, edades:[8,120] },
-      { nombre:'Snorkel en el arrecife', horas:2, precio:140, edades:[8,120] },
-      { nombre:'Playita con juegos', horas:2, precio:0, edades:[0,6] },
-      { nombre:'Spa maya para dos', horas:2, precio:150, edades:[18,120] } ],
+      { nombre:'Cenote en familia', horas:3, precio:0, edades:[6,120], foto:'naturaleza' },
+      { nombre:'Tulum arqueológico', horas:4, precio:180, edades:[8,120], foto:'ruinas' },
+      { nombre:'Snorkel en el arrecife', horas:2, precio:140, edades:[8,120], foto:'snorkel' },
+      { nombre:'Playita con juegos', horas:2, precio:0, edades:[0,6], foto:'playa-chicos' },
+      { nombre:'Spa maya para dos', horas:2, precio:150, edades:[18,120], foto:'spa' } ],
     resenias:{ promedio:4.7, total:118, similares:52, score:4.9,
       quien:'Familia con 2 niños de 5 y 9 años',
       texto:'El cenote fue lo que más les gustó y el hotel tenía comida para el más chico.' } },
@@ -2186,11 +2190,11 @@ const DETALLES = {
             habitacion:'Habitación familiar: 1 cama queen, 3 individuales',
             tags:['Kids club 4-14','2 piletas','6 restaurantes'] },
     actividades:[
-      { nombre:'Surf familiar', horas:2, precio:0, edades:[6,120] },
-      { nombre:'Snorkel guiado', horas:3, precio:160, edades:[8,120] },
-      { nombre:'Catamarán a Kenepa', horas:5, precio:210, edades:[4,120] },
-      { nombre:'Acuario para chicos', horas:2, precio:0, edades:[0,12] },
-      { nombre:'Spa y masajes', horas:1, precio:130, edades:[18,120] } ],
+      { nombre:'Surf familiar', horas:2, precio:0, edades:[6,120], foto:'surf' },
+      { nombre:'Snorkel guiado', horas:3, precio:160, edades:[8,120], foto:'snorkel' },
+      { nombre:'Catamarán a Kenepa', horas:5, precio:210, edades:[4,120], foto:'catamaran' },
+      { nombre:'Acuario para chicos', horas:2, precio:0, edades:[0,12], foto:'fauna-marina' },
+      { nombre:'Spa y masajes', horas:1, precio:130, edades:[18,120], foto:'spa' } ],
     resenias:{ promedio:4.6, total:82, similares:41, score:4.8,
       quien:'Familia con 2 niños de 8 y 11 años',
       texto:'Los transfers salieron a horario y el kids club nos dio dos tardes libres.' } },
@@ -2203,11 +2207,11 @@ const DETALLES = {
             habitacion:'Habitación familiar: 1 cama king, 2 individuales',
             tags:['Kids club 3-12','4 piletas','7 restaurantes'] },
     actividades:[
-      { nombre:'Isla Saona en catamarán', horas:6, precio:0, edades:[4,120] },
-      { nombre:'Bautismo de buceo', horas:1, precio:0, edades:[10,120] },
-      { nombre:'Kayak en el manglar', horas:2, precio:90, edades:[8,120] },
-      { nombre:'Tarde de piratas', horas:2, precio:0, edades:[4,12] },
-      { nombre:'Spa con vista al mar', horas:2, precio:140, edades:[18,120] } ],
+      { nombre:'Isla Saona en catamarán', horas:6, precio:0, edades:[4,120], foto:'catamaran' },
+      { nombre:'Bautismo de buceo', horas:1, precio:0, edades:[10,120], foto:'snorkel' },
+      { nombre:'Kayak en el manglar', horas:2, precio:90, edades:[8,120], foto:'paddle-kayak' },
+      { nombre:'Tarde de piratas', horas:2, precio:0, edades:[4,12], foto:'playa-chicos' },
+      { nombre:'Spa con vista al mar', horas:2, precio:140, edades:[18,120], foto:'spa' } ],
     resenias:{ promedio:4.5, total:64, similares:29, score:4.7,
       quien:'Familia con 3 niños de 4, 7 y 10 años',
       texto:'Saona vale cada minuto. El hotel resolvió la cena temprano sin drama.' } },
@@ -2220,11 +2224,11 @@ const DETALLES = {
             habitacion:'Habitación familiar: 2 camas queen',
             tags:['Kids club 5-12','2 piletas','5 restaurantes'] },
     actividades:[
-      { nombre:'Catamarán al atardecer', horas:3, precio:0, edades:[6,120] },
-      { nombre:'Jeep por el Arikok', horas:5, precio:190, edades:[10,120] },
-      { nombre:'Clase de windsurf', horas:2, precio:120, edades:[12,120] },
-      { nombre:'Rancho de burritos', horas:2, precio:0, edades:[0,10] },
-      { nombre:'Cena en la playa', horas:3, precio:170, edades:[18,120] } ],
+      { nombre:'Catamarán al atardecer', horas:3, precio:0, edades:[6,120], foto:'catamaran' },
+      { nombre:'Jeep por el Arikok', horas:5, precio:190, edades:[10,120], foto:'buggy' },
+      { nombre:'Clase de windsurf', horas:2, precio:120, edades:[12,120], foto:'surf' },
+      { nombre:'Rancho de burritos', horas:2, precio:0, edades:[0,10], foto:'chicos' },
+      { nombre:'Cena en la playa', horas:3, precio:170, edades:[18,120], foto:'cena' } ],
     resenias:{ promedio:4.6, total:97, similares:38, score:4.8,
       quien:'Familia con 1 niña de 7 años',
       texto:'Playa muy calma para nadar sola y el spa nos salvó la tarde de lluvia.' } },
@@ -2237,11 +2241,11 @@ const DETALLES = {
             habitacion:'Habitación familiar: 1 cama queen, 2 individuales',
             tags:['Kids club 4-12','5 piletas','4 restaurantes'] },
     actividades:[
-      { nombre:'Jangada a las piscinas', horas:2, precio:0, edades:[0,120] },
-      { nombre:'Buggy por las playas', horas:3, precio:110, edades:[6,120] },
-      { nombre:'Proyecto Hippocampus', horas:2, precio:0, edades:[4,120] },
-      { nombre:'Capoeira para chicos', horas:1, precio:0, edades:[6,14] },
-      { nombre:'Masajes en la playa', horas:1, precio:80, edades:[18,120] } ],
+      { nombre:'Jangada a las piscinas', horas:2, precio:0, edades:[0,120], foto:'catamaran' },
+      { nombre:'Buggy por las playas', horas:3, precio:110, edades:[6,120], foto:'buggy' },
+      { nombre:'Proyecto Hippocampus', horas:2, precio:0, edades:[4,120], foto:'fauna-marina' },
+      { nombre:'Capoeira para chicos', horas:1, precio:0, edades:[6,14], foto:'chicos' },
+      { nombre:'Masajes en la playa', horas:1, precio:80, edades:[18,120], foto:'spa' } ],
     resenias:{ promedio:4.4, total:73, similares:31, score:4.6,
       quien:'Familia con 2 niños de 6 y 9 años',
       texto:'Las piscinas naturales son de otro planeta. El vuelo corto ayudó muchísimo.' } },
@@ -2254,11 +2258,11 @@ const DETALLES = {
             habitacion:'Habitación familiar: 1 cama king, 2 individuales',
             tags:['Kids club 4-12','6 piletas','9 restaurantes'] },
     actividades:[
-      { nombre:'Parque acuático del resort', horas:4, precio:0, edades:[0,120] },
-      { nombre:'Catamarán a Isla Catalina', horas:6, precio:230, edades:[6,120] },
-      { nombre:'Clase de merengue', horas:1, precio:0, edades:[8,120] },
-      { nombre:'Mini golf en familia', horas:2, precio:0, edades:[4,120] },
-      { nombre:'Spa y circuito de aguas', horas:2, precio:150, edades:[18,120] } ],
+      { nombre:'Parque acuático del resort', horas:4, precio:0, edades:[0,120], foto:'parque-acuatico' },
+      { nombre:'Catamarán a Isla Catalina', horas:6, precio:230, edades:[6,120], foto:'catamaran' },
+      { nombre:'Clase de merengue', horas:1, precio:0, edades:[8,120], foto:'chicos' },
+      { nombre:'Mini golf en familia', horas:2, precio:0, edades:[4,120], foto:'chicos' },
+      { nombre:'Spa y circuito de aguas', horas:2, precio:150, edades:[18,120], foto:'spa' } ],
     resenias:{ promedio:4.5, total:140, similares:61, score:4.7,
       quien:'Familia con 2 niños de 7 y 12 años',
       texto:'No salimos del resort y estuvo perfecto: tenían actividad todo el día.' } },
@@ -2271,11 +2275,11 @@ const DETALLES = {
             habitacion:'Habitación familiar: 2 camas dobles',
             tags:['Kids club 4-12','7 piletas','10 restaurantes'] },
     actividades:[
-      { nombre:'Xcaret día completo', horas:8, precio:240, edades:[4,120] },
-      { nombre:'Chichén Itzá', horas:10, precio:260, edades:[10,120] },
-      { nombre:'Nado con delfines', horas:1, precio:180, edades:[6,120] },
-      { nombre:'Taller de piñatas', horas:1, precio:0, edades:[4,12] },
-      { nombre:'Cena maya para dos', horas:3, precio:190, edades:[18,120] } ],
+      { nombre:'Xcaret día completo', horas:8, precio:240, edades:[4,120], foto:'parque-acuatico' },
+      { nombre:'Chichén Itzá', horas:10, precio:260, edades:[10,120], foto:'ruinas' },
+      { nombre:'Nado con delfines', horas:1, precio:180, edades:[6,120], foto:'fauna-marina' },
+      { nombre:'Taller de piñatas', horas:1, precio:0, edades:[4,12], foto:'chicos' },
+      { nombre:'Cena maya para dos', horas:3, precio:190, edades:[18,120], foto:'cena' } ],
     resenias:{ promedio:4.6, total:203, similares:88, score:4.8,
       quien:'Familia con 2 niños de 9 y 13 años',
       texto:'Xcaret les voló la cabeza. Conviene dejarlo para el segundo día, no el primero.' } },
@@ -2288,11 +2292,11 @@ const DETALLES = {
             habitacion:'Habitación familiar: 1 cama queen, 2 individuales',
             tags:['Kids club 3-12','4 piletas','5 restaurantes'] },
     actividades:[
-      { nombre:'Surf en Praia Mole', horas:2, precio:0, edades:[8,120] },
-      { nombre:'Trilha da Costa da Lagoa', horas:4, precio:70, edades:[10,120] },
-      { nombre:'Stand up paddle', horas:2, precio:80, edades:[12,120] },
-      { nombre:'Circuito de aventura', horas:2, precio:0, edades:[4,12] },
-      { nombre:'Cata de vinos locales', horas:2, precio:85, edades:[18,120] } ],
+      { nombre:'Surf en Praia Mole', horas:2, precio:0, edades:[8,120], foto:'surf' },
+      { nombre:'Trilha da Costa da Lagoa', horas:4, precio:70, edades:[10,120], foto:'naturaleza' },
+      { nombre:'Stand up paddle', horas:2, precio:80, edades:[12,120], foto:'paddle-kayak' },
+      { nombre:'Circuito de aventura', horas:2, precio:0, edades:[4,12], foto:'chicos' },
+      { nombre:'Cata de vinos locales', horas:2, precio:85, edades:[18,120], foto:'cena' } ],
     resenias:{ promedio:4.5, total:156, similares:74, score:4.7,
       quien:'Familia con 2 niños de 6 y 10 años',
       texto:'Vuelo corto, idioma parecido y el resort tenía todo adentro. Volveríamos.' } },
@@ -2305,11 +2309,11 @@ const DETALLES = {
             habitacion:'Habitación familiar: 2 camas dobles',
             tags:['Kids club 4-12','2 piletas','4 restaurantes'] },
     actividades:[
-      { nombre:'Johnny Cay en lancha', horas:4, precio:0, edades:[0,120] },
-      { nombre:'Snorkel en el acuario', horas:2, precio:0, edades:[8,120] },
-      { nombre:'Vuelta a la isla en carrito', horas:3, precio:95, edades:[4,120] },
-      { nombre:'Kayak en la bahía', horas:1, precio:60, edades:[10,120] },
-      { nombre:'Atardecer en velero', horas:2, precio:110, edades:[18,120] } ],
+      { nombre:'Johnny Cay en lancha', horas:4, precio:0, edades:[0,120], foto:'catamaran' },
+      { nombre:'Snorkel en el acuario', horas:2, precio:0, edades:[8,120], foto:'snorkel' },
+      { nombre:'Vuelta a la isla en carrito', horas:3, precio:95, edades:[4,120], foto:'buggy' },
+      { nombre:'Kayak en la bahía', horas:1, precio:60, edades:[10,120], foto:'paddle-kayak' },
+      { nombre:'Atardecer en velero', horas:2, precio:110, edades:[18,120], foto:'catamaran' } ],
     resenias:{ promedio:4.3, total:59, similares:24, score:4.6,
       quien:'Familia con 1 niño de 8 años',
       texto:'El agua es tan calma que nadó solo todos los días. El hotel es sencillo pero cumple.' } },
@@ -2322,11 +2326,11 @@ const DETALLES = {
             habitacion:'Habitación familiar: 1 cama queen, 2 individuales',
             tags:['Kids club 5-12','2 piletas','3 restaurantes'] },
     actividades:[
-      { nombre:'Paseo náutico por 12 playas', horas:4, precio:0, edades:[4,120] },
-      { nombre:'Clase de stand up paddle', horas:1, precio:70, edades:[10,120] },
-      { nombre:'Buggy a Praia Brava', horas:2, precio:90, edades:[8,120] },
-      { nombre:'Tarde de arena y castillos', horas:2, precio:0, edades:[0,8] },
-      { nombre:'Spa frente a la bahía', horas:2, precio:120, edades:[18,120] } ],
+      { nombre:'Paseo náutico por 12 playas', horas:4, precio:0, edades:[4,120], foto:'catamaran' },
+      { nombre:'Clase de stand up paddle', horas:1, precio:70, edades:[10,120], foto:'paddle-kayak' },
+      { nombre:'Buggy a Praia Brava', horas:2, precio:90, edades:[8,120], foto:'buggy' },
+      { nombre:'Tarde de arena y castillos', horas:2, precio:0, edades:[0,8], foto:'playa-chicos' },
+      { nombre:'Spa frente a la bahía', horas:2, precio:120, edades:[18,120], foto:'spa' } ],
     resenias:{ promedio:4.4, total:88, similares:35, score:4.6,
       quien:'Familia con 2 niños de 5 y 8 años',
       texto:'Búzios es más tranquilo que Río y para esta edad fue el equilibrio justo.' } },
@@ -2515,7 +2519,9 @@ function filaActividad(a, paq, i) {
   /* Las de adultos se cobran por cabeza; las familiares, por grupo. */
   const unidad = a.edades[0] >= 18 ? 'por persona' : 'por familia';
   el.innerHTML = `
-    <div class="fila-thumb" style="background:linear-gradient(${140 + i*25}deg, ${paq.tono[0]}, ${paq.tono[1]})"></div>
+    <div class="fila-thumb" style="background:linear-gradient(${140 + i*25}deg, ${paq.tono[0]}, ${paq.tono[1]})">
+      <img src="assets/actividades/${a.foto}.jpg" alt="" onerror="this.remove()">
+    </div>
     <div class="fila-texto">
       <div class="text-label-m">${a.nombre}</div>
       <div class="text-body-s t-tertiary">${a.horas} h</div>
@@ -2958,18 +2964,18 @@ function renderPaso7() {
 /* A propósito no salen de PAQUETES: si la home mostrara los mismos
    destinos, spoilearía el ranking antes de que Rodrigo lo pida. */
 const HOME_DESTINOS = [
-  { destino:'Bariloche',      usd:480,  tono:['#9FC7E8','#2B5E8C'] },
-  { destino:'Mendoza',        usd:390,  tono:['#E0C89B','#8A5A2B'] },
-  { destino:'Río de Janeiro', usd:620,  tono:['#8FE0B8','#1E7A5A'] },
-  { destino:'Madrid',         usd:1150, tono:['#F0C4A8','#A65230'] },
-  { destino:'Cusco',          usd:740,  tono:['#C9B8E8','#5B3F8C'] },
+  { id:'bariloche',      destino:'Bariloche',      usd:480,  tono:['#9FC7E8','#2B5E8C'] },
+  { id:'mendoza',        destino:'Mendoza',        usd:390,  tono:['#E0C89B','#8A5A2B'] },
+  { id:'rio-de-janeiro', destino:'Río de Janeiro', usd:620,  tono:['#8FE0B8','#1E7A5A'] },
+  { id:'madrid',         destino:'Madrid',         usd:1150, tono:['#F0C4A8','#A65230'] },
+  { id:'cusco',          destino:'Cusco',          usd:740,  tono:['#C9B8E8','#5B3F8C'] },
 ];
 
 const HOME_OFERTAS = [
-  { titulo:'Termas de Río Hondo', bajada:'3 noches con desayuno', usd:310, off:30,
-    tono:['#A8DCE0','#256E78'] },
-  { titulo:'Costa Atlántica',     bajada:'5 noches frente al mar', usd:420, off:25,
-    tono:['#F2D6A8','#B07A2E'] },
+  { id:'termas-rio-hondo', titulo:'Termas de Río Hondo', bajada:'3 noches con desayuno',
+    usd:310, off:30, tono:['#A8DCE0','#256E78'] },
+  { id:'costa-atlantica',  titulo:'Costa Atlántica',     bajada:'5 noches frente al mar',
+    usd:420, off:25, tono:['#F2D6A8','#B07A2E'] },
 ];
 
 /* La home siempre muestra pesos: es la vitrina local, y todavía no hay
@@ -2982,14 +2988,18 @@ function enPesos(usd) {
 function renderHome() {
   $('home-destinos').innerHTML = HOME_DESTINOS.map(d => `
     <button class="destino">
-      <div class="foto" style="background:linear-gradient(155deg, ${d.tono[0]}, ${d.tono[1]})"></div>
+      <div class="foto" style="background:linear-gradient(155deg, ${d.tono[0]}, ${d.tono[1]})">
+        <img src="assets/home/${d.id}.jpg" alt="" onerror="this.remove()">
+      </div>
       <div class="text-label-m">${d.destino}</div>
       <div class="text-body-s t-tertiary">Desde ${enPesos(d.usd)}</div>
     </button>`).join('');
 
   $('home-ofertas').innerHTML = HOME_OFERTAS.map(o => `
     <button class="fila" style="text-align:left; cursor:pointer">
-      <div class="fila-thumb" style="background:linear-gradient(155deg, ${o.tono[0]}, ${o.tono[1]})"></div>
+      <div class="fila-thumb" style="background:linear-gradient(155deg, ${o.tono[0]}, ${o.tono[1]})">
+        <img src="assets/home/${o.id}.jpg" alt="" onerror="this.remove()">
+      </div>
       <div class="fila-texto">
         <div class="text-label-m">${o.titulo}</div>
         <div class="text-body-s t-secondary">${o.bajada}</div>
