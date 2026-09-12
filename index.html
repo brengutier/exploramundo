@@ -530,11 +530,48 @@ body{
   position:fixed; top:0; bottom:0; left:50%; margin-left:-195px; width:390px;
   z-index:30; background:var(--background);
   display:grid; place-items:center; text-align:center; padding:var(--space-32);
+  transition:opacity .35s ease;
 }
+.cargando.is-transparente{opacity:0}
 .cargando img{width:120px; height:120px; margin:0 auto var(--space-24)}
-/* El fade evita que el cambio de texto se lea como un salto. */
-.cargando p{transition:opacity .2s ease}
+/* El fade evita que el cambio de texto se lea como un salto, y el alto
+   reservado evita que la brújula se corra cuando un mensaje ocupa dos
+   líneas y el siguiente una: el bloque está centrado, así que cualquier
+   cambio de alto mueve todo. */
+.cargando p{transition:opacity .2s ease; min-height:56px; margin:0}
 .cargando p.is-fading{opacity:0}
+
+/* --- confirmación de compra --- */
+/* El botón se llena de izquierda a derecha mientras "procesa": es el tap
+   de más riesgo del flujo y conviene que se note que se registró. */
+.btn-cargando{position:relative; overflow:hidden; pointer-events:none}
+.btn-cargando::after{
+  content:''; position:absolute; inset:0;
+  background:rgba(255,255,255,.22);
+  transform:translateX(-100%);
+  animation:llenar 1100ms ease-out forwards;
+}
+@keyframes llenar{ to{ transform:translateX(0) } }
+
+/* La onda se recorta contra la columna del teléfono: en desktop, un
+   círculo fixed se derramaría por toda la ventana. */
+.onda-marco{
+  position:fixed; top:0; bottom:0; left:50%; margin-left:-195px; width:390px;
+  z-index:40; overflow:hidden; pointer-events:none;
+}
+.onda{
+  position:absolute; border-radius:var(--radius-full);
+  background:var(--surface-success);
+  transform:scale(0); transition:transform .45s ease-in, opacity .3s ease;
+}
+.onda.is-expandida{transform:scale(1)}
+.onda.is-transparente{opacity:0}
+
+@media (prefers-reduced-motion: reduce){
+  .btn-cargando::after{animation:none}
+  .onda{transition:none}
+  .cargando{transition:none}
+}
 
 /* --- avisos --- */
 .notice{
@@ -3065,13 +3102,6 @@ function pasosCarga() {
     ? 'Cruzando los intereses de los pasajeros'
     : 'Viendo qué encaja con ustedes');
 
-  const donde = pref.modo === 'destino' && pref.destino.trim()
-    ? pref.destino.trim()
-    : (pref.tipos.length
-        ? pref.tipos.map(id => TIPOS_DESTINO.find(t => t.id === id).label).join(' y ').toLowerCase()
-        : 'destinos');
-  pasos.push(`Buscando ${donde} dentro de tu presupuesto`);
-
   pasos.push('Armando tu top 10');
   return pasos;
 }
@@ -3081,27 +3111,88 @@ function mostrarCargando(alTerminar) {
   const pasos = pasosCarga();
   let i = 0;
 
-  txt.textContent = pasos[0];
+  const mostrar = i => { txt.textContent = pasos[i] + '...'; };
+
+  mostrar(0);
   txt.classList.remove('is-fading');
-  caja.classList.remove('hidden');
   document.body.style.overflow = 'hidden';
+
+  /* Entra desvanecido. Los dos frames son para que el navegador registre
+     el estado transparente antes de quitarlo; con uno solo no transiciona. */
+  caja.classList.add('is-transparente');
+  caja.classList.remove('hidden');
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    caja.classList.remove('is-transparente');
+  }));
 
   const tick = setInterval(() => {
     i++;
     if (i >= pasos.length) {
       clearInterval(tick);
-      caja.classList.add('hidden');
-      document.body.style.overflow = '';
+      /* El ranking se monta primero y el loader se desvanece encima, así
+         se revela en vez de cortarse contra una pantalla en blanco. */
       alTerminar();
+      caja.classList.add('is-transparente');
+      setTimeout(() => {
+        caja.classList.add('hidden');
+        caja.classList.remove('is-transparente');
+        document.body.style.overflow = '';
+      }, 350);
       return;
     }
     /* Se desvanece, cambia y vuelve: el corte seco se lee como un salto. */
     txt.classList.add('is-fading');
     setTimeout(() => {
-      txt.textContent = pasos[i];
+      mostrar(i);
       txt.classList.remove('is-fading');
     }, 200);
   }, MS_POR_PASO);
+}
+
+/* ============================================================
+   CONFIRMACIÓN DE COMPRA
+   Se llena el botón y después una onda verde tapa la pantalla. Igual
+   que en el loader, el éxito se monta ANTES de que la onda se
+   desvanezca, así se revela a través de ella.
+   ============================================================ */
+const MS_LLENADO = 1100, MS_ONDA = 450, MS_SALIDA = 300;
+
+function confirmarCompra() {
+  const b = $('btn-confirmar');
+
+  /* Quien pidió menos movimiento se saltea los 1,8s de animación. */
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { irAPaso(7); return; }
+
+  const etiqueta = b.textContent;
+  b.textContent = 'Confirmando...';
+  b.classList.add('btn-cargando');
+
+  setTimeout(() => {
+    const marco = document.createElement('div');
+    marco.className = 'onda-marco';
+    document.body.append(marco);
+
+    const m = marco.getBoundingClientRect(), r = b.getBoundingClientRect();
+    const cx = r.left + r.width / 2 - m.left, cy = r.top + r.height / 2 - m.top;
+    /* Diámetro que alcanza la esquina más lejana desde donde está el botón. */
+    const d = 2 * Math.hypot(Math.max(cx, m.width - cx), Math.max(cy, m.height - cy));
+
+    const onda = document.createElement('div');
+    onda.className = 'onda';
+    onda.style.cssText = `width:${d}px; height:${d}px; left:${cx - d/2}px; top:${cy - d/2}px`;
+    marco.append(onda);
+    requestAnimationFrame(() => requestAnimationFrame(() => onda.classList.add('is-expandida')));
+
+    setTimeout(() => {
+      irAPaso(7);
+      onda.classList.add('is-transparente');
+      setTimeout(() => {
+        marco.remove();
+        b.textContent = etiqueta;
+        b.classList.remove('btn-cargando');
+      }, MS_SALIDA);
+    }, MS_ONDA);
+  }, MS_LLENADO);
 }
 
 /* ============================================================
@@ -3143,7 +3234,7 @@ $('volver-paso4').onclick = () => irAPaso(4);
 $('volver-paso5').onclick = () => irAPaso(5);
 $('btn-elegir').onclick = () => irAPaso(5);
 $('btn-pagar').onclick = () => irAPaso(6);
-$('btn-confirmar').onclick = () => irAPaso(7);
+$('btn-confirmar').onclick = confirmarCompra;
 $('btn-inicio').onclick = () => irAPaso(0);
 $('ir-feature').onclick = () => irAPaso(1);
 /* Ahora el 'atrás' del paso 1 tiene a dónde volver. */
