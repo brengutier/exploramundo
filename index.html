@@ -2261,6 +2261,7 @@ const DETALLES = {
       { nombre:'Parque acuático del resort', horas:4, precio:0, edades:[0,120], foto:'parque-acuatico' },
       { nombre:'Catamarán a Isla Catalina', horas:6, precio:230, edades:[6,120], foto:'catamaran' },
       { nombre:'Clase de merengue', horas:1, precio:0, edades:[8,120], foto:'taller' },
+      { nombre:'Búsqueda del tesoro', horas:2, precio:0, edades:[4,16], foto:'juegos' },
       { nombre:'Mini golf en familia', horas:2, precio:0, edades:[4,120], foto:'juegos' },
       { nombre:'Spa y circuito de aguas', horas:2, precio:150, edades:[18,120], foto:'spa' } ],
     resenias:{ promedio:4.5, total:140, similares:61, score:4.7,
@@ -2295,7 +2296,7 @@ const DETALLES = {
       { nombre:'Surf en Praia Mole', horas:2, precio:0, edades:[8,120], foto:'surf' },
       { nombre:'Trilha da Costa da Lagoa', horas:4, precio:70, edades:[10,120], foto:'naturaleza' },
       { nombre:'Stand up paddle', horas:2, precio:80, edades:[12,120], foto:'paddle-kayak' },
-      { nombre:'Circuito de aventura', horas:2, precio:0, edades:[4,12], foto:'juegos' },
+      { nombre:'Circuito de aventura', horas:2, precio:0, edades:[6,16], foto:'juegos' },
       { nombre:'Cata de vinos locales', horas:2, precio:85, edades:[18,120], foto:'cena' } ],
     resenias:{ promedio:4.5, total:156, similares:74, score:4.7,
       quien:'Familia con 2 niños de 6 y 10 años',
@@ -2311,6 +2312,7 @@ const DETALLES = {
     actividades:[
       { nombre:'Johnny Cay en lancha', horas:4, precio:0, edades:[0,120], foto:'catamaran' },
       { nombre:'Snorkel en el acuario', horas:2, precio:0, edades:[8,120], foto:'snorkel' },
+      { nombre:'Taller de caracoles', horas:1, precio:0, edades:[4,16], foto:'taller' },
       { nombre:'Vuelta a la isla en carrito', horas:3, precio:95, edades:[4,120], foto:'buggy' },
       { nombre:'Kayak en la bahía', horas:1, precio:60, edades:[10,120], foto:'paddle-kayak' },
       { nombre:'Atardecer en velero', horas:2, precio:110, edades:[18,120], foto:'catamaran' } ],
@@ -2344,13 +2346,6 @@ const EXTRAS = [
 
 /* Franjas de las tabs de actividades. Se muestran solo las que tienen
    al menos un pasajero: una familia sin menores no ve "4-12 años". */
-const BANDAS = [
-  { id:'0-3',     label:'0-3 años',   min:0,  max:3 },
-  { id:'4-12',    label:'4-12 años',  min:4,  max:12 },
-  { id:'13-17',   label:'13-17 años', min:13, max:17 },
-  { id:'adultos', label:'Adultos',    min:18, max:120 },
-];
-
 /* ============================================================
    RENDER DEL DETALLE
    ============================================================ */
@@ -2401,9 +2396,35 @@ function resumenPasajeros(sep = ' + ') {
 
 /* Solo las franjas que tienen al menos un pasajero cargado: una familia
    sin menores no ve la tab "4-12 años". */
-function bandasPresentes() {
-  return BANDAS.filter(b =>
-    state.pasajeros.some(p => edadValida(p) && Number(p.edad) >= b.min && Number(p.edad) <= b.max));
+/* Una sola tab para los menores, rotulada con sus edades reales: si
+   cargaste chicos de 2 y 5, dice "2-5 años". Las franjas fijas no tenían
+   sentido cuando la familia ya declaró quiénes viajan. */
+function rangoMenores() {
+  const e = state.pasajeros
+    .filter(p => p.tipo === 'menor' && edadValida(p))
+    .map(p => Number(p.edad));
+  if (!e.length) return null;
+  const min = Math.min(...e), max = Math.max(...e);
+  return { min, max, label: min === max ? plural(min, 'año', 'años') : `${min}-${max} años` };
+}
+
+/* Cada actividad vive en un solo lugar, y eso lo define la actividad y no
+   la familia: con tope de edad es de chicos, desde 18 es de adultos, y sin
+   tope va en "Todos". */
+function soloChicos(a)  { return a.edades[1] < 18; }
+function soloAdultos(a) { return a.edades[0] >= 18; }
+
+function actividadesDe(det, tab) {
+  const m = rangoMenores();
+  return det.actividades
+    .filter(a => {
+      if (tab === 'adultos') return soloAdultos(a);
+      if (tab === 'menores') {
+        return m && soloChicos(a) && a.edades[0] <= m.max && a.edades[1] >= m.min;
+      }
+      return !soloChicos(a) && !soloAdultos(a);
+    })
+    .sort((x, y) => (y.precio === 0) - (x.precio === 0));   /* incluidas primero */
 }
 
 function renderPaso4() {
@@ -2477,25 +2498,24 @@ function bodyEstadia(body, paq, det, noches) {
          gap:var(--space-12); margin-top:var(--space-16)"></div>`;
   body.append(act);
 
-  const bandas = bandasPresentes();
+  /* Una tab sin actividades en este paquete no se muestra. */
+  const m = rangoMenores();
+  const opciones = [{ id:'todos', label:'Todos' }];
+  if (m && actividadesDe(det, 'menores').length) opciones.push({ id:'menores', label:m.label });
+  if (actividadesDe(det, 'adultos').length) opciones.push({ id:'adultos', label:'Adultos' });
+  /* Si la tab elegida no existe acá, no dejar la selección en el aire. */
+  if (!opciones.some(o => o.id === state.actBanda)) state.actBanda = 'todos';
+
   const tabs = act.querySelector('#act-tabs');
-  [{ id:'todos', label:'Todos' }, ...bandas].forEach(b => {
+  opciones.forEach(o => {
     const el = document.createElement('button');
-    el.className = state.actBanda === b.id ? 'is-selected' : '';
-    el.textContent = b.label;
-    el.onclick = () => { state.actBanda = b.id; render(); };
+    el.className = state.actBanda === o.id ? 'is-selected' : '';
+    el.textContent = o.label;
+    el.onclick = () => { state.actBanda = o.id; render(); };
     tabs.append(el);
   });
 
-  /* "Todos" no es "sin filtro": son las actividades donde entra toda la
-     familia. Cada franja muestra lo específico de esa edad, o sea lo que
-     NO sirve para todos pero sí para ella. Así las tabs no repiten. */
-  const banda = bandas.find(b => b.id === state.actBanda);
-  const lista = det.actividades
-    .filter(a => banda
-      ? (!paraTodaLaFamilia(a) && a.edades[0] <= banda.max && a.edades[1] >= banda.min)
-      : paraTodaLaFamilia(a))
-    .sort((x, y) => (y.precio === 0) - (x.precio === 0));   /* incluidas primero */
+  const lista = actividadesDe(det, state.actBanda);
 
   const cont = act.querySelector('#act-lista');
   if (!lista.length) {
@@ -2504,12 +2524,6 @@ function bodyEstadia(body, paq, det, noches) {
     return;
   }
   lista.forEach((a, i) => cont.append(filaActividad(a, paq, i)));
-}
-
-function paraTodaLaFamilia(a) {
-  const edades = state.pasajeros.filter(edadValida).map(p => Number(p.edad));
-  if (!edades.length) return true;
-  return edades.every(e => e >= a.edades[0] && e <= a.edades[1]);
 }
 
 function filaActividad(a, paq, i) {
