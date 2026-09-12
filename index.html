@@ -549,7 +549,7 @@ body{
   content:''; position:absolute; inset:0;
   background:rgba(255,255,255,.22);
   transform:translateX(-100%);
-  animation:llenar 1100ms ease-out forwards;
+  animation:llenar var(--ms-llenado, 1800ms) ease-out forwards;
 }
 @keyframes llenar{ to{ transform:translateX(0) } }
 
@@ -562,7 +562,9 @@ body{
 .onda{
   position:absolute; border-radius:var(--radius-full);
   background:var(--surface-success);
-  transform:scale(0); transition:transform .45s ease-in, opacity .3s ease;
+  transform:scale(0);
+  transition:transform var(--ms-onda, 700ms) ease-in,
+             opacity var(--ms-salida, 400ms) ease;
 }
 .onda.is-expandida{transform:scale(1)}
 .onda.is-transparente{opacity:0}
@@ -3155,7 +3157,9 @@ function mostrarCargando(alTerminar) {
    que en el loader, el éxito se monta ANTES de que la onda se
    desvanezca, así se revela a través de ella.
    ============================================================ */
-const MS_LLENADO = 1100, MS_ONDA = 450, MS_SALIDA = 300;
+/* Única fuente de verdad: el CSS las lee de estas variables, así no se
+   desincroniza el número de la animación con el del setTimeout. */
+const MS_LLENADO = 1800, MS_ONDA = 700, MS_SALIDA = 400;
 
 function confirmarCompra() {
   const b = $('btn-confirmar');
@@ -3165,6 +3169,7 @@ function confirmarCompra() {
 
   const etiqueta = b.textContent;
   b.textContent = 'Confirmando...';
+  b.style.setProperty('--ms-llenado', MS_LLENADO + 'ms');
   b.classList.add('btn-cargando');
 
   setTimeout(() => {
@@ -3180,6 +3185,8 @@ function confirmarCompra() {
     const onda = document.createElement('div');
     onda.className = 'onda';
     onda.style.cssText = `width:${d}px; height:${d}px; left:${cx - d/2}px; top:${cy - d/2}px`;
+    onda.style.setProperty('--ms-onda', MS_ONDA + 'ms');
+    onda.style.setProperty('--ms-salida', MS_SALIDA + 'ms');
     marco.append(onda);
     requestAnimationFrame(() => requestAnimationFrame(() => onda.classList.add('is-expandida')));
 
