@@ -525,6 +525,17 @@ body{
   font-weight:600;
 }
 
+/* --- loader entre el quiz y el ranking --- */
+.cargando{
+  position:fixed; top:0; bottom:0; left:50%; margin-left:-195px; width:390px;
+  z-index:30; background:var(--background);
+  display:grid; place-items:center; text-align:center; padding:var(--space-32);
+}
+.cargando img{width:120px; height:120px; margin:0 auto var(--space-24)}
+/* El fade evita que el cambio de texto se lea como un salto. */
+.cargando p{transition:opacity .2s ease}
+.cargando p.is-fading{opacity:0}
+
 /* --- avisos --- */
 .notice{
   display:flex; gap:var(--space-12); padding:var(--space-12) var(--space-16);
@@ -949,6 +960,16 @@ body{
     </div>
   </section>
 
+  <!-- ============ LOADER ============ -->
+  <!-- Es la única espera real del flujo: en producción acá se cruzan
+       intereses, presupuesto y fechas contra los diez paquetes. -->
+  <div class="cargando hidden" id="cargando">
+    <div>
+      <img src="assets/emoji-brujula.png" alt="" onerror="this.remove()">
+      <p class="text-heading-l" id="cargando-texto"></p>
+    </div>
+  </div>
+
   <!-- ============ CTA FIJO ============ -->
   <div class="cta-bar hidden" id="cta-bar">
     <p class="text-body-s t-tertiary hidden" id="cta-ayuda"
@@ -1239,7 +1260,7 @@ function actualizarCTA() {
   if (state.paso === 2) {
     b.textContent = 'Ver mi top 10';
     falta = faltanPaso2();
-    b.onclick = () => { if (puedeVerPaquetes()) irAPaso(3); };
+    b.onclick = () => { if (puedeVerPaquetes()) mostrarCargando(() => irAPaso(3)); };
   } else {
     b.textContent = 'Continuar';
     b.onclick = () => { if (puedeContinuar()) irAPaso(2); };
@@ -3022,6 +3043,65 @@ function renderHome() {
       </div>
       <span class="tag" style="flex:none">-${o.off}%</span>
     </button>`).join('');
+}
+
+/* ============================================================
+   LOADER
+   Los pasos se arman con los datos reales de la familia: la espera
+   deja de ser tiempo muerto y pasa a mostrar por qué el ranking es
+   suyo y no una lista genérica.
+   ============================================================ */
+/* Tiempo de lectura de cada mensaje. Cada uno dura lo mismo, incluido
+   el último: antes el cierre sumaba una espera extra y el tercero
+   quedaba el doble de tiempo en pantalla. */
+const MS_POR_PASO = 1600;
+
+function pasosCarga() {
+  const pasos = [];
+
+  /* Los intereses son opcionales: sin ninguno cargado, el mensaje no puede
+     prometer un cruce que no existe. */
+  pasos.push(state.pasajeros.some(p => p.intereses.length)
+    ? 'Cruzando los intereses de los pasajeros'
+    : 'Viendo qué encaja con ustedes');
+
+  const donde = pref.modo === 'destino' && pref.destino.trim()
+    ? pref.destino.trim()
+    : (pref.tipos.length
+        ? pref.tipos.map(id => TIPOS_DESTINO.find(t => t.id === id).label).join(' y ').toLowerCase()
+        : 'destinos');
+  pasos.push(`Buscando ${donde} dentro de tu presupuesto`);
+
+  pasos.push('Armando tu top 10');
+  return pasos;
+}
+
+function mostrarCargando(alTerminar) {
+  const caja = $('cargando'), txt = $('cargando-texto');
+  const pasos = pasosCarga();
+  let i = 0;
+
+  txt.textContent = pasos[0];
+  txt.classList.remove('is-fading');
+  caja.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+
+  const tick = setInterval(() => {
+    i++;
+    if (i >= pasos.length) {
+      clearInterval(tick);
+      caja.classList.add('hidden');
+      document.body.style.overflow = '';
+      alTerminar();
+      return;
+    }
+    /* Se desvanece, cambia y vuelve: el corte seco se lee como un salto. */
+    txt.classList.add('is-fading');
+    setTimeout(() => {
+      txt.textContent = pasos[i];
+      txt.classList.remove('is-fading');
+    }, 200);
+  }, MS_POR_PASO);
 }
 
 /* ============================================================
