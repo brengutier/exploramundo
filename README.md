@@ -65,10 +65,11 @@ No son mocks: se calculan con los datos que carga la persona.
 - **Detalle.** Días y noches, resumen de pasajeros, fechas de cada tramo de
   vuelo, hora de cada traslado y capacidad del vehículo se derivan de lo que
   cargó la persona. Hotel, aerolíneas y reseñas son mock.
-- **Actividades por edad.** "Todos" no es "sin filtro": son las actividades
-  donde entra toda la familia. Cada franja muestra solo lo específico de esa
-  edad, así las tabs no repiten. Se listan solo las franjas que tienen algún
-  pasajero, y las incluidas van primero.
+- **Actividades por edad.** La tab la define la actividad y no la familia: con
+  tope de edad es de chicos, desde los 18 es de adultos, y sin tope va en
+  "Todos". Así cada una aparece en un solo lugar. La tab de menores se rotula
+  con sus edades reales —chicos de 2 y 5 muestran "2-5 años"—, y una tab sin
+  actividades en ese paquete no se muestra. Las incluidas van primero.
 - **Vuelos.** Rodrigo sale de Córdoba, así que todo internacional hace escala
   en Buenos Aires, y la vuelta invierte el recorrido.
 - **Pago.** Las millas descuentan a 0,05 USD cada una y topean en el saldo, no
