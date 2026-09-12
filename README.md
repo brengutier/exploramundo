@@ -18,6 +18,7 @@ sin routing ni navegación global. Mobile only, viewport de 390px. Light mode ú
 
 ## Flujo
 
+0. Home de Exploramundo (la app que ya existe; solo el banner entra a la feature)
 1. Onboarding / perfil familiar — Step 1 (pasajeros e intereses)
 2. Onboarding / preferencias — Step 2 (destino, fechas, actividad, presupuesto)
 3. Ranking de paquetes (top 10)
@@ -35,8 +36,14 @@ tokens/       Los mismos tokens, separados por tipo, como referencia del
 assets/       Memojis de Fluentmoji. Los dos del paso 2 van inlineados en
               base64; la brújula animada de la home va por ruta relativa,
               porque es un APNG y en base64 sumaría ~800 KB al HTML.
-assets/paquetes/  Fotos de los 10 destinos más una de hotel compartida. Se
-              cargan por ruta relativa, no inline: ver el README de esa carpeta.
+assets/paquetes/     Los 10 destinos del ranking más una foto de hotel
+              compartida entre todos.
+assets/home/         Los 5 destinos y las 2 ofertas de la home. No se
+              repiten con los del ranking, para no spoilearlo.
+assets/actividades/  14 fotos que las 50 actividades comparten, agrupadas
+              por lo que se ve en la imagen.
+              Las tres carpetas cargan por ruta relativa y cada una tiene
+              su README con nombres y tamaños.
 design/       Referencias visuales del proto de Figma.
 ```
 
@@ -97,4 +104,8 @@ helper text y elementos de UI, no para texto que haya que leer sí o sí.
 - [x] Pantalla 5 — Forma de pago (millas, cuotas y moneda)
 - [x] Pantalla 6 — Resumen / checkout
 - [x] Pantalla 7 — Compra confirmada
-- [ ] Fotos de los destinos en `assets/paquetes/` (10 + 1 de hotel)
+- [x] Home de Exploramundo (entrada a la feature)
+- [x] Las 32 fotos: 11 de paquetes, 7 de home y 14 de actividades
+
+El prototipo está completo. Toda card que muestra una imagen tiene su
+degradado de respaldo, así que si falta un archivo no se rompe nada.
