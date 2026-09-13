@@ -495,7 +495,7 @@ body{
    HTML. Si no está el archivo, el onerror lo saca y el banner queda igual. */
 .banner-emoji{width:76px; height:76px; flex:none; display:block}
 
-.destinos{display:flex; gap:var(--space-12); overflow-x:auto; padding-bottom:var(--space-4)}
+.destinos{gap:var(--space-12); padding-bottom:var(--space-4)}
 .destino{
   flex:none; width:140px; cursor:pointer; text-align:left;
   background:none; border:none; padding:0;
@@ -581,6 +581,42 @@ body{
   .onda{transition:none}
   .cargando{transition:none}
 }
+
+/* --- criterios del ranking ---
+   No son filtros: son el resumen de lo que la persona pidió, con atajo
+   para ir a cambiarlo donde ese control ya vive. */
+/* Fila que scrollea en horizontal. Esconde la barra del sistema y desvanece
+   el borde del lado donde queda contenido fuera de vista, en vez de cortarlo
+   seco. Con los dos anchos en cero la máscara es opaca: los stops quedan en
+   la misma posición y no se ve ningún degradado. Las clases las maneja
+   marcarScrollX. */
+.scroll-x{
+  display:flex; flex-wrap:nowrap; overflow-x:auto;
+  scrollbar-width:none; -ms-overflow-style:none;
+  --fade-izq:0px; --fade-der:0px;
+  -webkit-mask-image:linear-gradient(to right,
+    transparent 0, #000 var(--fade-izq),
+    #000 calc(100% - var(--fade-der)), transparent 100%);
+          mask-image:linear-gradient(to right,
+    transparent 0, #000 var(--fade-izq),
+    #000 calc(100% - var(--fade-der)), transparent 100%);
+}
+.scroll-x::-webkit-scrollbar{display:none}
+.scroll-x.hay-antes{--fade-izq:40px}
+.scroll-x.hay-mas{--fade-der:40px}
+
+.criterios{gap:var(--space-8)}
+.criterio{
+  flex:none; white-space:nowrap;
+  display:inline-flex; align-items:center; gap:var(--space-6);
+  padding:var(--space-4) var(--space-12); cursor:pointer;
+  border:var(--border-width-default) solid var(--border-dark);
+  border-radius:var(--radius-full); background:var(--background-surface);
+  color:var(--text-primary); font:400 14px/20px var(--font-family-base);
+  transition:border-color .15s ease;
+}
+.criterio:hover{border-color:var(--border-blackish)}
+.criterio [data-lucide]{width:14px; height:14px; color:var(--text-tertiary); flex:none}
 
 /* --- avisos --- */
 .notice{
@@ -799,7 +835,7 @@ body{
 
       <h2 class="text-heading-m titulo-alineado" style="margin:var(--space-32) 0 var(--space-12)">
         Seguí explorando</h2>
-      <div class="destinos" id="home-destinos"></div>
+      <div class="destinos scroll-x" id="home-destinos"></div>
 
       <h2 class="text-heading-m titulo-alineado" style="margin:var(--space-32) 0 var(--space-12)">
         Escapadas de relax</h2>
@@ -882,7 +918,9 @@ body{
     </header>
     <div class="contenido">
       <h2 class="text-heading-l" id="top-titulo" style="margin:var(--space-16) 0 var(--space-8)"></h2>
-      <p class="text-body t-secondary" id="top-bajada" style="margin:0 0 var(--space-24)"></p>
+      <p class="text-body t-secondary" id="top-bajada" style="margin:0 0 var(--space-16)"></p>
+      <div class="criterios scroll-x titulo-alineado" id="top-criterios"
+           style="margin-bottom:var(--space-24)"></div>
       <div id="lista-paquetes" style="display:flex; flex-direction:column; gap:var(--space-24)"></div>
     </div>
   </section>
@@ -2142,6 +2180,64 @@ function paquetesDelRanking() {
     .filter(p => pref.limites !== 'exactos' || (p.precio <= pref.max && p.precio >= pref.min));
 }
 
+/* Cada criterio sabe a dónde mandar para cambiarlo: al paso y, si
+   corresponde, al acordeón puntual que lo contiene. */
+function criteriosDelRanking() {
+  const c = [];
+
+  c.push({
+    txt: pref.modo === 'destino' && pref.destino.trim()
+      ? pref.destino.trim()
+      : (pref.tipos.length
+          ? pref.tipos.map(id => TIPOS_DESTINO.find(t => t.id === id).label).join(', ')
+          : 'Sin preferencia'),
+    ir: () => { pref.abierto = 'destino'; irAPaso(2); },
+  });
+
+  if (pref.cuandoModo === 'fechas' && pref.desde && pref.hasta) {
+    c.push({ txt: `${fmtFecha(pref.desde)} – ${fmtFecha(pref.hasta)}`,
+             ir: () => { pref.abierto = 'cuando'; irAPaso(2); } });
+  } else if (pref.meses.length) {
+    c.push({ txt: `${plural(pref.meses.length, 'mes', 'meses')} flexibles`,
+             ir: () => { pref.abierto = 'cuando'; irAPaso(2); } });
+  }
+
+  c.push({ txt: resumenPasajeros(', '), ir: () => irAPaso(1) });
+
+  c.push({
+    txt: `Hasta ${plata(pref.max)}`,
+    ir: () => { irAPaso(2); $('presupuesto').scrollIntoView({ block: 'center' }); },
+  });
+
+  return c;
+}
+
+/* Desvanece cada borde solo si de ese lado queda contenido fuera de vista.
+   Si el degradado quedara fijo, taparía el primer o el último elemento
+   justo cuando ya no hay nada más para mostrar de ese lado. */
+function marcarScrollX(el) {
+  const upd = () => {
+    el.classList.toggle('hay-antes', el.scrollLeft > 1);
+    el.classList.toggle('hay-mas',
+      el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
+  };
+  el.onscroll = upd;
+  upd();
+}
+
+function renderCriterios() {
+  const cont = $('top-criterios');
+  cont.innerHTML = '';
+  criteriosDelRanking().forEach(c => {
+    const b = document.createElement('button');
+    b.className = 'criterio';
+    b.innerHTML = `<span>${c.txt}</span><i data-lucide="pencil"></i>`;
+    b.onclick = c.ir;
+    cont.append(b);
+  });
+  marcarScrollX(cont);
+}
+
 function renderPaso3() {
   const cont = $('lista-paquetes');
   const lista = paquetesDelRanking();
@@ -2152,6 +2248,7 @@ function renderPaso3() {
     $('top-titulo').textContent = 'Nada entra en ese presupuesto';
     $('top-bajada').textContent =
       `Con límites exactos descartamos todo lo que se va de ${plata(pref.min)} a ${plata(pref.max)}.`;
+    renderCriterios();
     cont.append(vacioPresupuesto());
     return;
   }
@@ -2159,6 +2256,7 @@ function renderPaso3() {
   $('top-titulo').textContent = `Top ${lista.length} para tu familia`;
   $('top-bajada').textContent =
     'Seleccionamos estos destinos y paquetes para que solo te ocupes de disfrutar.';
+  renderCriterios();
   lista.forEach((p, i) => cont.append(cardPaquete(p, i + 1, fam)));
 }
 
@@ -3087,6 +3185,7 @@ function renderHome() {
       <div class="text-label-m">${d.destino}</div>
       <div class="text-body-s t-tertiary">Desde ${enPesos(d.usd)}</div>
     </button>`).join('');
+  marcarScrollX($('home-destinos'));
 
   $('home-ofertas').innerHTML = HOME_OFERTAS.map(o => `
     <button class="fila" style="text-align:left; cursor:pointer">
