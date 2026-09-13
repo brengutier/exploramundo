@@ -264,12 +264,16 @@ body{
   transform:translateY(100%); transition:transform .25s cubic-bezier(.32,.72,0,1);
 }
 .sheet.is-open{transform:translateY(0)}
-.sheet-body{flex:1; min-height:0; overflow-y:auto; display:flex; flex-direction:column; gap:var(--space-24)}
+.sheet-body{flex:1; min-height:0; overflow-y:auto; display:flex; flex-direction:column; gap:var(--space-32)}
 /* Bloque de sección: el título se separa 16 de su contenido. */
 .sheet-seccion{display:flex; flex-direction:column; gap:var(--space-16)}
 .sheet-seccion h3{margin:0}
 /* El buscador agrupa label, input, aviso y resultados con 8. */
 .sheet-seccion--busqueda{gap:var(--space-8)}
+/* Los títulos del sheet llevan 6px de padding (titulo-alineado), así que
+   el input necesita el mismo para que el texto arranque en la misma
+   línea. El subrayado se deja a lo ancho, alineado con los resultados. */
+#sheet-buscador{padding-left:var(--space-6)}
 .chips{display:flex; flex-wrap:wrap; gap:var(--space-8)}
 /* Grupo de opciones que ocupa el ancho: cada chip toma la misma tajada. */
 .chips--fill{flex-wrap:nowrap}
@@ -316,7 +320,8 @@ body{
   border-radius:var(--radius-card) 0 var(--radius-lg) 0;
   font:700 14px/20px var(--font-family-base);
 }
-.pack-info{padding:var(--space-16) var(--space-24) var(--space-24)}
+/* Mismo padding que las cards del detalle y del resumen. */
+.pack-info{padding:var(--space-16) var(--space-16) var(--space-24)}
 .pack-razon{color:var(--text-brand); margin:0 0 var(--space-16)}
 .pack-head{display:flex; align-items:flex-start; justify-content:space-between; gap:var(--space-16)}
 .pack-precio{flex:none; text-align:right}
@@ -369,7 +374,8 @@ body{
 }
 .fila-thumb{width:48px; height:48px; flex:none; border-radius:var(--radius-md); overflow:hidden}
 .fila-texto{flex:1; min-width:0}
-.fila .btn-mini{
+/* Botón secundario chico, para acciones dentro de una card. */
+.btn-mini{
   flex:none; cursor:pointer; padding:var(--space-8) var(--space-12);
   border:var(--border-width-default) solid var(--border-dark);
   border-radius:var(--radius-full); background:var(--background-surface);
@@ -397,8 +403,11 @@ body{
    `transparent` algunos motores interpolan hacia negro y se ve gris. */
 .float-fade{
   position:fixed; bottom:0; left:50%; margin-left:-195px; width:390px;
-  height:180px; z-index:14; pointer-events:none;
-  background:linear-gradient(180deg, rgba(251,252,254,0) 0%, var(--background) 58%);
+  /* Arranca a la altura del borde superior del CTA, no antes: lo que está
+     por encima se ve entero, y lo que se difumina es lo que asoma por
+     debajo, entre el CTA y el borde de la pantalla. */
+  height:96px; z-index:14; pointer-events:none;
+  background:linear-gradient(180deg, rgba(251,252,254,0) 0%, var(--background) 55%);
 }
 .float-cta{
   position:fixed; bottom:var(--space-16); left:50%; margin-left:-171px; width:342px;
@@ -937,12 +946,12 @@ body{
       <div class="card card--detalle card--plana">
         <div class="notice">
           <i data-lucide="info" style="flex:none"></i>
-          <span class="text-label-s">Seleccionamos la tarjeta con mejor financiación</span>
+          <span class="text-label-m">Seleccionamos la tarjeta con mejor financiación.</span>
         </div>
         <div class="tarjeta">
           <span class="marca">VISA</span>
           <span class="text-body-medium">•••• 4521</span>
-          <button class="btn-link btn-link--brand" style="margin-left:auto">Cambiar tarjeta</button>
+          <button class="btn-mini" style="margin-left:auto">Cambiar tarjeta</button>
         </div>
       </div>
       <button class="btn-link" style="margin-top:var(--space-12)">Agregar otro método de pago</button>
@@ -1380,7 +1389,7 @@ function cardExpandida(p) {
       </div>
       <div class="field ${err ? 'field--error' : ''}">
         <label class="text-body" for="edad-${p.id}">Edad</label>
-        <input id="edad-${p.id}" type="number" inputmode="numeric" min="0" max="120"
+        <input id="edad-${p.id}" type="text" inputmode="numeric" maxlength="3"
                placeholder="Edad" value="${p.edad}">
       </div>
     </div>
@@ -1434,11 +1443,22 @@ function cardExpandida(p) {
   const inEdad = el.querySelector(`#edad-${p.id}`);
   inNombre.oninput = e => { p.nombre = e.target.value; actualizarLiviano(); };
   inEdad.oninput = e => {
-    p.edad = e.target.value;
+    /* Solo dígitos: el campo es de texto para poder manejar el cursor. */
+    const limpio = e.target.value.replace(/\D/g, '');
+    /* Dónde quedó el cursor, descontando lo que se haya descartado. */
+    const pos = e.target.selectionStart - (e.target.value.length - limpio.length);
+
+    p.edad = limpio;
     /* Cambiar la edad puede invalidar intereses ya elegidos. */
     p.intereses = p.intereses.filter(id => apto(porId(id), p.edad));
     render();
-    const f = $(`edad-${p.id}`); if (f) { f.focus(); f.setSelectionRange(f.value.length, f.value.length); }
+
+    /* La card se rehace entera, así que hay que devolver foco y cursor.
+       Con type=number esto no era posible —los navegadores rechazan
+       setSelectionRange— y el cursor volvía al principio: escribir 51
+       terminaba en 15. */
+    const f = $(`edad-${p.id}`);
+    if (f) { f.focus(); f.setSelectionRange(pos, pos); }
   };
   el.querySelector('[data-accion="eliminar"]').onclick = () => eliminarPasajero(p.id);
   const editar = el.querySelector('[data-accion="editar"]');
@@ -2775,7 +2795,7 @@ function renderPaso5() {
   aviso.classList.toggle('hidden', !rec);
   if (rec) {
     aviso.innerHTML = `<i data-lucide="alert-circle" style="flex:none"></i>
-      <span class="text-label-s">En ${pago.cuotas} cuotas se suma un ${Math.round(rec * 100)}% de interés.</span>`;
+      <span class="text-label-m">En ${pago.cuotas} cuotas se suma un ${Math.round(rec * 100)}% de interés.</span>`;
   }
 
   /* --- moneda: la puede cambiar acá sin volver al paso 2 --- */
