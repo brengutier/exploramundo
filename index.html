@@ -233,8 +233,6 @@ body{
   font:600 14px/20px var(--font-family-base);
   color:var(--text-primary); text-decoration:underline;
 }
-/* Link de marca: se usa cuando compite con otro link neutro al lado. */
-.btn-link--brand{color:var(--text-brand)}
 .btn-danger{
   display:inline-flex; align-items:center; gap:var(--space-6);
   background:none; border:none; padding:0; cursor:pointer;
@@ -2926,7 +2924,7 @@ function renderPaso6() {
   $('res-pago').innerHTML = `
     <div class="det-head">
       <span class="text-heading-m">Método de pago</span>
-      <button class="btn-link btn-link--brand" id="res-editar">Editar</button>
+      <button class="btn-link" id="res-editar">Editar</button>
     </div>
     <div class="tarjeta">
       <span class="marca">VISA</span>
